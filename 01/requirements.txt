@@ -1,0 +1,13 @@
+langchain==0.0.353
+langchain-openai==0.0.2
+langchain-core==0.1.15
+audio-recorder-streamlit==0.0.10
+streamlit
+accelerate==0.26.0
+evaluate==0.4.3
+datasets==3.2.0
+tensorboard==2.18.0
+transformers==4.48.0
+scikit-learn==1.6.1
+peft==0.14.0
+pytubefix==8.12.0
