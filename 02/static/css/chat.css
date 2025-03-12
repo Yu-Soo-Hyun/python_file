@@ -1,0 +1,224 @@
+*{
+    box-sizing: border-box;
+    margin:0;
+    padding: 0;
+}
+a {
+    color: inherit;       
+    text-decoration: none; 
+}
+
+
+html,body{
+    margin: 0 auto;
+    height: 100%;
+    width: 100%;
+    max-width: 1280px;
+    min-width: 1024px;
+}
+
+#out_box{
+    height: 100%;
+    width: 100%;
+}
+
+/* 상단 네비바 */
+#nav_box{
+    background-color: #eee;
+    display: flex;
+    width: 100%;
+    height: 50px;
+}
+
+#nav_box>h1{
+    display: block;
+    height: 50px;
+    width: fit-content;
+    
+}
+#nav_box>h1>a{
+    height: 100%;
+    line-height: 50px;
+    padding: 0 10px;
+}
+
+#nav_box>div{
+    display: flex;
+    margin-left: auto;
+    height: 100%;
+    width: fit-content;
+}
+#nav_box>div>li{
+    display: block;
+    height: 100%;
+    width: fit-content;
+    text-align: center;
+    line-height: 50px;
+    padding: 0 30px;
+}
+#nav_box>div>li>a{
+    font-size: 20px;
+}
+#nav_box>div>li>a:hover{
+    font-weight:bold;
+}
+
+/* 내용 */
+#main_box{
+    width: 100%;
+    height: calc(100% - 50px);
+    display: flex;
+}
+
+/* 카메라존 */
+#camera_zone{
+    position: relative;
+    background-color: #fff;
+    flex-grow: 1;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    overflow: hidden;
+}
+#camera_view{
+    display: block;
+    background-color: #000;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    
+}
+
+#camera_under{
+    position: absolute;
+    display: block;
+    width: 90%;
+    height: 150px;
+    bottom: 10px;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+#glass_lists{
+    height: 100%;
+    width: fit-content;
+    display: flex;
+    gap: 20px;
+    overflow: visible; 
+    /* cursor: grab; */
+    scroll-behavior: smooth; 
+}
+#camera_under::-webkit-scrollbar {
+    display: none;
+}
+.glass_boxs{
+    background-color: #eee;
+    height: 100%;
+    width: 200px;
+    border-radius: 10px;
+}
+.glass_img{
+    height: 80%;
+    width: 100%;
+    padding: 5px;
+}
+.glass_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.glass_colors{
+    width: 100%;
+    height: 20%;
+    display: flex;
+    margin: 0 10px;
+}
+.glass_colors>li{
+    display: block;
+    height: 20px;
+    width: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    margin: 0 2px;
+    border: 0.5px solid #fff;
+}
+
+
+/* 채팅존  */
+#chat_zone{
+    background-color: #eee;
+    width: 400px;
+    height: 100%;
+}
+#chat_talks{
+    height: calc(100% - 70px);
+    width: 100%;
+    padding: 10px;
+    overflow:auto;
+}
+#chat_talks>div{
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+
+}
+.ai_talk{
+    padding-right: 50px;
+}
+.ai_talk>div{
+    background-color: rgb(222, 214, 250);
+}
+.hm_talk{
+    padding-left: 50px;
+}
+.hm_talk>div{
+    background-color: rgb(201, 223, 255);
+}
+#chat_talks>div>div{
+    padding: 10px;
+    border-radius: 10px;
+}
+
+
+#chat_inputs{
+    height: 70px;
+    width: 100%;
+    text-align: center;
+}
+#chat_inputs>div{
+    width: 100%;
+    height: 100%;
+    padding: 0 10px 20px 10px;
+    display: flex;
+}
+#add_file{
+    display: block;
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+    border: 2px dotted gray;
+    line-height: 25px;
+    border-radius: 5px;
+    font-size: 40px;
+    cursor: pointer;
+}
+#text_input{
+    display: block;
+    width: 280px;
+    height: 50px;
+    resize: none;
+    
+}
+#text_input::-webkit-scrollbar {
+    display: none;
+}
+#summit_btn{
+    display: block;
+    width: 50px;
+    height: 50px;
+    
+}
+
+
