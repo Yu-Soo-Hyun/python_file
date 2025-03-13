@@ -10,9 +10,9 @@
     <link rel="stylesheet" type="text/css" href="../static/css/chat.css">
     <style>
         body { text-align: center; }
-        video { width: 50%;height:500px; border: 2px solid black; }
-        canvas { position: absolute; width: 50%;height:500px; left: 50%; transform: translateX(-50%); }
-        .btn-container { margin-top: 10px; }
+        video { width: 600px; height: 400px; border: 2px solid black;box-sizing: none; }
+        canvas { position: absolute; width: 600px;height: 400px; left: 50%; transform: translateX(-50%); }
+        .btn-container { position: absolute; top: 500px; left: 50%;  transform: translateX(-50%);}
         button { padding: 10px 20px; margin: 5px; cursor: pointer; }
     </style>
     <title>트리거 버튼</title>
@@ -89,7 +89,9 @@ $('#clearCanvas').on('click', function(){
 async function setupCamera() {
     try{
 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 600, height: 400 }
+        });
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
