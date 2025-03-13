@@ -8,7 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../static/css/chat.css">
-    
+    <style>
+        body { text-align: center; }
+        video { width: 50%;height:500px; border: 2px solid black; }
+        canvas { position: absolute; width: 50%;height:500px; left: 50%; transform: translateX(-50%); }
+        .btn-container { margin-top: 10px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
     <title>트리거 버튼</title>
 </head>
 <body>
@@ -24,197 +30,103 @@
         </div>
 
         <!-- 메인 -->
-        <div id="main_box">
-            <!-- 카메라존 -->
-            <div id="camera_zone">
-                <!-- 화상 -->
-                <div id="camera_view">
-                    <p id="status">상태: 감지 중...</p>
-                    <video id="videoElement" autoplay></video>
-                    <canvas id="canvasOutput" ></canvas>
-                    <!-- <div>
-                    </div> -->
-                </div>
-
-                <!-- 하단 -->
-                <div id="camera_under">
-                    <!-- 안경 스크롤 -->
-                    <div id="glass_lists">
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/5.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li class="colorpalette" style="background-color: red;"></li>
-                                <li class="colorpalette" style="background-color: rgb(223, 220, 78);"></li>
-                            </div>
-                        </div>
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/6.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li class="colorpalette" style="background-color: rgb(139, 90, 172);"></li>
-                                <li class="colorpalette" style="background-color: rgb(110, 111, 117);"></li>
-                                <li class="colorpalette" style="background-color: rgb(0, 0, 0);"></li>
-                            </div>
-                        </div>
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/7.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li style="background-color: rgb(135, 177, 194);"><div class="colorpalette" ></li>
-                                <li class="colorpalette" style="background-color: rgb(63, 25, 25);"></li>
-                            </div>
-                        </div>
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/5.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li class="colorpalette" style="background-color: rgb(34, 33, 33);"></li>
-                                <li class="colorpalette" style="background-color: rgb(209, 200, 200);"></li>
-                            </div>
-                        </div>
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/6.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li class="colorpalette" style="background-color: rgb(97, 85, 85);"></li>
-                                <li class="colorpalette" style="background-color: rgb(32, 15, 59);"></li>
-                                <li class="colorpalette" style="background-color: rgb(160, 160, 160);"></li>
-                            </div>
-                        </div>
-                        <div class="glass_boxs">
-                            <div class="glass_img">
-                                <img src="../static/img/7.png" />
-                            </div>
-                            <div class="glass_colors">
-                                <li class="colorpalette" style="background-color: rgb(228, 67, 67);"></li>
-                                <li class="colorpalette" style="background-color: rgb(74, 126, 59);"></li>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 대화존-->
-            <div id="chat_zone">
-                <!-- 말풍선 -->
-                <div id="chat_talks">
-                    <div class="ai_talk">
-                        <div>
-                            <p>어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구</p>
-                        </div>
-                    </div>
-                    <div class="hm_talk">
-                        <div>
-                            <p>질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요</p>
-                        </div>
-                    </div>
-                    <div class="ai_talk">
-                        <div>
-                            <p>답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구답변이요 어쩌구 저쩌구구</p>
-                        </div>
-                    </div>
-                    <div class="hm_talk">
-                        <div>
-                            <p>엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 </p>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- 입력 -->
-                <div id="chat_inputs">
-                    <div>
-                        <div id="add_file"> + </div>
-                        <textarea id="text_input"></textarea>
-                        <button id="summit_btn">전송</button>
-                    </div>
-                </div>
-            </div>
+        <video id="videoElement" autoplay></video>
+        <canvas id="outputCanvas"></canvas> 
+    
+        <div class="btn-container">
+            
+            <p id="status">상태: 카메라 off </p>
+            <button id="startCam">캠 켜기</button>
+            <button id="screenShot">사진촬영</button>
+            <button id="stopCam">캠 끄기</button>
+            <button id="clearCanvas">초기화</button>
         </div>
+    
     </div>
 </body>
 
 <script>
-$(document).ready(function () {
-    let isDown = false;
-    let startX;
-    let scrollLeft;
 
-    $("#camera_under").on("mousedown", function (e) {
-        e.preventDefault();
-        isDown = true;
-        $(this).addClass("active");
-        startX = e.pageX;
-        scrollLeft = $(this).scrollLeft();
-
-        console.log("mousedown - startX:", startX);
-        console.log("mousedown - scrollLeft:", scrollLeft);
-        console.log("scrollWidth:", $(this)[0].scrollWidth);
-        console.log("clientWidth:", $(this)[0].clientWidth);
-    });
-
-    $(window).on("mouseup", function () {
-        isDown = false;
-        $("#camera_under").removeClass("active");
-    });
-
-    $(window).on("mousemove", function (e) {
-        if (!isDown) return;
-        e.preventDefault();
-        let x = e.pageX;
-        let walk = (x - startX) * 2; // ✅ 이동 배율을 3배로 조정
-        $("#camera_under").scrollLeft(scrollLeft - walk);
-
-        console.log("mousemove - scrollLeft:", $("#camera_under").scrollLeft());
-    });
-});
-
-
-// 랜드마크로 방향탐지...
 let video = document.getElementById("videoElement");
-let canvas = document.getElementById("canvasOutput");
+let canvas = document.getElementById("outputCanvas");
 let ctx = canvas.getContext("2d");
 let statusText = document.getElementById("status");
 
+let countdown = 3; // 초기 카운트다운 값
+let countdownInterval = null; // 카운트다운 인터벌 변수
+let isCounting = false; // 현재 카운트다운 진행 중인지 여부
+let isLookingStraight = false; // 사용자가 정면을 보고 있는지 여부
+
+// 캠키기 클릭
+$('#startCam').on('click', function(){
+    clearCanvas();
+    setupCamera();
+});
+
+// 캠 끄기 클릭
+$('#stopCam').on('click', function(){
+    stopCamera();
+});
+
+
+// 사진촬영 클릭
+$('#screenShot').on('click', function(){
+    // console.log('눌러지냐?');
+    // rotationFace();
+    // captureFace();
+    if (!isCounting) {
+        rotationFace();
+    }
+});
+
+// 캔버스 날리기 
+$('#clearCanvas').on('click', function(){
+    clearCanvas();
+});
+
+
+// 카메라 on 
 async function setupCamera() {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-    return new Promise(resolve => video.onloadedmetadata = resolve);
+    try{
+
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoStream = stream;
+        video.srcObject = stream;
+        statusText.textContent = "카메라 on";
+        return new Promise(resolve => video.onloadedmetadata = resolve);
+    } catch (error) {
+        console.error("웹캠 접근 실패:", error);
+    }
 }
 
-async function startFaceMesh() {
-    await setupCamera();
-    video.play();
+// 정면 탐지
+function rotationFace(){
+    if (videoStream) {
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+        
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: false, 
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
 
-    const faceMesh = new FaceMesh({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
+        faceMesh.onResults(direction);
 
-    faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: false, // 눈동자 감지
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-    });
+        async function detect() {
+            await faceMesh.send({ image: video });
+            requestAnimationFrame(detect);
+        }
 
-    faceMesh.onResults(drawResults);
-
-    async function detect() {
-        await faceMesh.send({ image: video });
-        requestAnimationFrame(detect);
+        detect();
     }
 
-    detect();
 }
 
-function drawResults(results) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+// 방향체크
+function direction(results){
     if (results.multiFaceLandmarks) {
         for (const landmarks of results.multiFaceLandmarks) {
             let noseTip = landmarks[4];  // 코 끝
@@ -232,55 +144,110 @@ function drawResults(results) {
 
             if (Math.abs(faceCenterX - noseX) < 0.02 && eyeDiff < 0.02 && mouthDiff < 0.02) {
                 statusText.textContent = "✅ 정면을 보고 있음";
-                statusText.style.color = "green";
-                // 🔥 얼굴 정면 감지되었을 때 캡처 실행
-                // let capturedImage = captureFace();
-                // console.log("정면 얼굴 캡처 완료:", capturedImage);
+                isLookingStraight = true;
+                if (!isCounting) {
+                    startCountdown(); // 카운트다운 시작
+                }
             } else {
                 statusText.textContent = "❌ 고개가 기울어짐";
-                statusText.style.color = "red";
+                isLookingStraight = false;
+                stopCountdown(); // 카운트다운 멈춤
             }
-
-            // 랜드마크 점 찍기
-            // drawLandmark(noseTip, "yellow");
-            // drawLandmark(leftEyeOuter, "blue");
-            // drawLandmark(rightEyeOuter, "blue");
-            // drawLandmark(leftMouthCorner, "red");
-            // drawLandmark(rightMouthCorner, "red");
         }
     } else {
         statusText.textContent = "⚠ 얼굴 감지 실패";
         statusText.style.color = "gray";
+        isLookingStraight = false;
+        stopCountdown();
     }
 }
 
-function drawLandmark(point, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(point.x * canvas.width, point.y * canvas.height, 3, 0, 2 * Math.PI);
-    ctx.fill();
+// 카운트다운 시작
+function startCountdown() {
+    if (countdownInterval) return; // 이미 카운트다운 중이면 중복 실행 방지
+
+    isCounting = true;
+    let countdownDisplay = document.createElement("p");
+    countdownDisplay.id = "countdownText";
+    countdownDisplay.style.fontSize = "30px";
+    countdownDisplay.style.color = "blue";
+    countdownDisplay.style.position = "absolute";
+    countdownDisplay.style.top = "10px";
+    countdownDisplay.style.left = "50%";
+    countdownDisplay.style.transform = "translateX(-50%)";
+    document.body.appendChild(countdownDisplay);
+
+    countdown = 3;
+    countdownInterval = setInterval(() => {
+        if (!isLookingStraight) {
+            stopCountdown();
+            return;
+        }
+
+        countdownDisplay.textContent = `📸 ${countdown}`;
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            document.body.removeChild(countdownDisplay);
+            captureFace(); // 캡처 실행
+            isCounting = false;
+        } else {
+            countdown--;
+        }
+    }, 1000);
 }
 
-// function captureFace() {
-//     let captureCanvas = document.createElement("canvas");
-//     captureCanvas.width = video.videoWidth;
-//     captureCanvas.height = video.videoHeight;
-//     let captureCtx = captureCanvas.getContext("2d");
+// 카운트다운 멈춤
+function stopCountdown() {
+    if (countdownInterval) {
+        $('#countdownText').remove();
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    isCounting = false;
+}
 
-//     captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+// 캡쳐 시작
+function captureFace() {
+    if (!videoStream) {
+        console.error("캠이 꺼져 있습니다.");
+        return;
+    }
     
-//     let imageDataURL = captureCanvas.toDataURL("image/png");
-//     console.log("캡처된 이미지 데이터:", imageDataURL);
-    
-//     return imageDataURL;
-// }
+    let captureCanvas = canvas
+    // let captureCanvas = document.createElement("canvas");
+    captureCanvas.width = video.videoWidth;
+    captureCanvas.height = video.videoHeight;
+    let captureCtx = captureCanvas.getContext("2d");
 
-video.addEventListener("loadeddata", () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-});
+    captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
 
-startFaceMesh();
+    // 캡처된 이미지 데이터 (Base64 PNG)
+    let imageDataURL = captureCanvas.toDataURL("image/png");
+    console.log("캡처된 이미지 데이터:", imageDataURL);
+    stopCamera(); //반복 x
+
+    return imageDataURL;
+}
+
+
+// 카메라 off
+function stopCamera() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop()); // 스트림 중지
+        video.srcObject = null;
+        videoStream = null;
+        statusText.textContent = "카메라 off";
+        console.log("카메라 종료됨");
+    }
+}
+
+// 캔버스 초기화 
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
 
 </script>
 </html>
