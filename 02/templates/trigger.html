@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
     <link rel="stylesheet" type="text/css" href="../static/css/chat.css">
     
-    <title>메인 챗화면 테스트</title>
+    <title>트리거 버튼</title>
 </head>
 <body>
     <div id="out_box">
@@ -30,6 +29,7 @@
             <div id="camera_zone">
                 <!-- 화상 -->
                 <div id="camera_view">
+                    <p id="status">상태: 감지 중...</p>
                     <video id="videoElement" autoplay></video>
                     <canvas id="canvasOutput" ></canvas>
                     <!-- <div>
@@ -173,10 +173,12 @@ $(document).ready(function () {
     });
 });
 
-// 웹캠 테스트 
+
+// 랜드마크로 방향탐지...
 let video = document.getElementById("videoElement");
 let canvas = document.getElementById("canvasOutput");
 let ctx = canvas.getContext("2d");
+let statusText = document.getElementById("status");
 
 async function setupCamera() {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -194,9 +196,9 @@ async function startFaceMesh() {
 
     faceMesh.setOptions({
         maxNumFaces: 1,
-        refineLandmarks: true, // 눈동자 감지 옵션
+        refineLandmarks: false, // 눈동자 감지
         minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
+        minTrackingConfidence: 0.5,
     });
 
     faceMesh.onResults(drawResults);
@@ -215,17 +217,68 @@ function drawResults(results) {
 
     if (results.multiFaceLandmarks) {
         for (const landmarks of results.multiFaceLandmarks) {
-            ctx.fillStyle = "red";
-            for (let i = 0; i < landmarks.length; i++) {
-                const x = landmarks[i].x * canvas.width;
-                const y = landmarks[i].y * canvas.height;
-                ctx.beginPath();
-                ctx.arc(x, y, 2, 0, 2 * Math.PI);
-                ctx.fill();
+            let noseTip = landmarks[4];  // 코 끝
+            let leftEyeOuter = landmarks[33];  // 왼쪽 눈꼬리
+            let rightEyeOuter = landmarks[263];  // 오른쪽 눈꼬리
+            let leftMouthCorner = landmarks[61];  // 왼쪽 입꼬리
+            let rightMouthCorner = landmarks[291];  // 오른쪽 입꼬리
+
+            // 정면 여부 판단
+            let faceCenterX = (leftEyeOuter.x + rightEyeOuter.x) / 2; // 눈 중심
+            let noseX = noseTip.x;  // 코 위치
+
+            let eyeDiff = Math.abs(leftEyeOuter.y - rightEyeOuter.y);
+            let mouthDiff = Math.abs(leftMouthCorner.y - rightMouthCorner.y);
+
+            if (Math.abs(faceCenterX - noseX) < 0.02 && eyeDiff < 0.02 && mouthDiff < 0.02) {
+                statusText.textContent = "✅ 정면을 보고 있음";
+                statusText.style.color = "green";
+                // 🔥 얼굴 정면 감지되었을 때 캡처 실행
+                // let capturedImage = captureFace();
+                // console.log("정면 얼굴 캡처 완료:", capturedImage);
+            } else {
+                statusText.textContent = "❌ 고개가 기울어짐";
+                statusText.style.color = "red";
             }
+
+            // 랜드마크 점 찍기
+            // drawLandmark(noseTip, "yellow");
+            // drawLandmark(leftEyeOuter, "blue");
+            // drawLandmark(rightEyeOuter, "blue");
+            // drawLandmark(leftMouthCorner, "red");
+            // drawLandmark(rightMouthCorner, "red");
         }
+    } else {
+        statusText.textContent = "⚠ 얼굴 감지 실패";
+        statusText.style.color = "gray";
     }
 }
+
+function drawLandmark(point, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(point.x * canvas.width, point.y * canvas.height, 3, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+// function captureFace() {
+//     let captureCanvas = document.createElement("canvas");
+//     captureCanvas.width = video.videoWidth;
+//     captureCanvas.height = video.videoHeight;
+//     let captureCtx = captureCanvas.getContext("2d");
+
+//     captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+    
+//     let imageDataURL = captureCanvas.toDataURL("image/png");
+//     console.log("캡처된 이미지 데이터:", imageDataURL);
+    
+//     return imageDataURL;
+// }
+
+video.addEventListener("loadeddata", () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+});
 
 startFaceMesh();
 

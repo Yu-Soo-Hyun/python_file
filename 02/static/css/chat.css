@@ -81,11 +81,30 @@ html,body{
     overflow: hidden;
 }
 #camera_view{
+    position: relative;
     display: block;
-    background-color: #000;
+    /* background-color: #000; */
     width: 100%;
-    aspect-ratio: 16 / 9;
+    /* aspect-ratio: 16 / 9; */
     
+}
+#camera_view>video{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+#camera_view>canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* 클릭 이벤트를 비디오로 전달 */
+}
+#camera_view>#status{
+    position: absolute;
+    top: -50px;
+    z-index: 5;
 }
 
 #camera_under{
