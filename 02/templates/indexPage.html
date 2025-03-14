@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../static/css/indexPage.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../static/js/indexPage.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+
+    <!-- Intro section -->
+    <section class="section section--intro overlay overlay--intro">
+        <div class="wrapper wrapper--intro">
+        <h1 class="title title--intro">내 얼굴형에 꼭 맞는 안경은?</h1>
+        <a class="btn" href="/faceFit">진단받기</a>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <nav class="site-nav js-site-nav"
+        role="navigation"
+        aria-label="navigation">
+
+        <div class="site-nav__curtain js-nav-curtain"></div>
+
+        <div class="wrapper wrapper--nav-area">
+
+        <button class="menu-button js-menu-button"
+            aria-expanded="false"
+            aria-controls="menu"
+            aria-label="Menu button">
+            <span class="menu-button__lines">
+            <span class="menu-button__line"></span>
+            <span class="menu-button__line"></span>
+            <span class="menu-button__line"></span>
+            </span>
+        </button>
+
+        <ul class="site-nav__menu u-list-reset js-menu"  id="menu">
+            <li><a class="site-nav__link scroll-nav" href="#" data-target="#section-what">What</a></li>
+            <li><a class="site-nav__link scroll-nav" href="#" data-target="#section-why">Why</a></li>
+            <li><a class="site-nav__link scroll-nav" href="#" data-target="#aboutus">About Us</a></li>
+            <li><a class="site-nav__link" href="/faceFit">Go Fit</a></li>
+        </ul>
+
+        <a class="logo" href="#">
+            Face-Fit
+        </a>
+        </div>
+    </nav>
+
+    <!-- Article section -->
+    <section class="section section--article">
+        <article>
+        <div class="wrapper">
+            <h2 class="title title--article">안경, 나를 표현하는 또 하나의 스타일</h2>
+        </div>
+
+        <div id="section-what" class="excerpt">
+            <div class="excerpt__image-wrapper">
+            <img src="../static/img/next_window.webp" alt="image">
+            </div>
+            <div class="excerpt__text-wrapper">
+            <p>
+                Face-Fit 은 사용자의 얼굴형을 분석하여 가장 어울리는 안경 스타일을 추천하는 
+                스마트 안경 추천 시스템입니다. 웹캠을 통해 얼굴형을 자동 감지한 후, 최적의 프레임 디자인을 
+                제안하여 사용자에게 가장 잘 맞는 안경을 찾을 수 있도록 도와줍니다. 
+                직접 착용해보지 않아도 가상으로 어울리는 스타일을 확인할 수 있어 편리합니다.
+            </p>
+            </div>
+        </div>
+
+        <div  id="section-why" class="excerpt excerpt--reverse">
+            <div class="excerpt__image-wrapper">
+            <img src="../static/img/art_glasses.webp" alt="image">
+            </div>
+            <div class="excerpt__text-wrapper">
+            <p>
+                각각의 얼굴형에 따라 어울리는 안경 스타일이 다릅니다. 둥근 얼굴은 각진 프레임이, 
+                각진 얼굴은 부드러운 곡선의 프레임이 잘 어울립니다. 잘 맞는 안경을 착용하면 얼굴이 더욱 조화로워 보이며, 
+                전체적인 인상이 세련되고 균형감 있게 연출됩니다. 
+                따라서 자신의 얼굴형을 고려한 안경 선택이 필수적입니다.
+            </p>
+            </div>
+        </div>
+        </article>
+    </section>
+
+
+    <!-- AboutUs section -->
+    <section id="aboutus" class="section section--contact overlay overlay--contact">
+        <article>
+            <div class="aboutus_box">
+                <div class="card_box">
+                    <a class="card">
+                    <div>
+                        <span>
+                            <img src="../static/img/human.jpg" alt="image">
+                        </span>
+                        <h3>김서진</h3>
+                        <ul>
+                        <li>예제제</li>
+                        </ul>
+                    </div>
+                    </a>
+                    <a class="card">
+                    <div>
+                        <span>
+                            <img src="../static/img/human.jpg" alt="image">
+                        </span>
+                        <h3>김성근</h3>
+                        <ul>
+                        <li>텍스트트</li>
+                        </ul>
+                    </div>
+                    </a>
+                    <a class="card">
+                    <div>
+                        <span>
+                            <img src="../static/img/human.jpg" alt="image">
+                        </span>
+                        <h3>김태희</h3>
+                        <ul>
+                        <li>적당히히</li>
+                        </ul>
+                    </div>
+                    </a>
+                    <a class="card">
+                    <div>
+                        <span>
+                            <img src="../static/img/human.jpg" alt="image">
+                        </span>
+                        <h3>유수현</h3>
+                        <ul>
+                        <li>아무말로로</li>
+                        </ul>
+                    </div>
+                    </a>
+                    <a class="card">
+                    <div>
+                        <span>
+                            <img src="../static/img/human.jpg" alt="image">
+                        </span>
+                        <h3>정승연</h3>
+                        <ul>
+                        <li>채우기기</li>
+                        </ul>
+                    </div>
+                    </a>
+                </div>
+            </div>
+        </article>
+    </section>
+
+
+    <!-- Footer -->
+    <section class="section section--footer">
+        <div class="wrapper wrapper--copyright">
+            <ul class="address__list">
+                <li>- Made By -</li>
+                <li>SK네트웍스 Family AI 캠프 7기</li>
+                <li>2팀 - (팀명 넣기)</li>
+            </ul>
+            <p>&#169; Copyright</p>
+        </div>
+    </section>
+
+
+</body>
+</html>

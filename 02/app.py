@@ -20,6 +20,14 @@ def faceRotation():
 def trigger():
     return render_template("trigger.html")
 
+@app.route("/indexPage")
+def indexPage():
+    return render_template("indexPage.html")
+
+@app.route("/faceFit")
+def faceFit():
+    return render_template("faceFit.html")
+
 if __name__ == "__main__":
     app.run( debug=True)
     # app.run(host="0.0.0.0", port=5017, debug=True)
