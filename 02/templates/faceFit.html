@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    <script src="../static/js/indexPage.js" defer></script>
+    <script src="../static/js/faceFit.js" defer></script>
     <link rel="stylesheet" type="text/css" href="../static/css/faceFit.css">
     <title>Document</title>
 </head>
@@ -49,10 +50,18 @@
     <div id="main_box">
         <!-- 카메라존 -->
         <div id="camera_zone">
+            <div class="btn-container">
+            
+                <p id="status">상태: 카메라 off </p>
+                <button id="startCam">캠 켜기</button>
+                <button id="screenShot">사진촬영</button>
+                <button id="stopCam">캠 끄기</button>
+                <button id="clearCanvas">초기화</button>
+            </div>
             <!-- 화상 -->
             <div id="camera_view">
                 <video id="videoElement" autoplay></video>
-                <canvas id="canvasOutput" ></canvas>
+                <canvas id="outputCanvas" ></canvas>
                 <!-- <div>
                 </div> -->
             </div>
@@ -126,22 +135,22 @@
             <div id="chat_talks">
                 <div class="ai_talk">
                     <div>
-                        <p>어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구</p>
+                        어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구
                     </div>
                 </div>
                 <div class="hm_talk">
                     <div>
-                        <p>질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요</p>
+                        질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요
                     </div>
                 </div>
                 <div class="ai_talk">
                     <div>
-                        <p>답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구답변이요 어쩌구 저쩌구구</p>
+                        답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구답변이요 어쩌구 저쩌구구
                     </div>
                 </div>
                 <div class="hm_talk">
                     <div>
-                        <p>엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 </p>
+                        엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기
                     </div>
                 </div>
 
@@ -149,9 +158,9 @@
             <!-- 입력 -->
             <div id="chat_inputs">
                 <div>
-                    <div id="add_file"> + </div>
+                    <!-- <div id="add_file"> + </div> -->
                     <textarea id="text_input"></textarea>
-                    <button id="summit_btn">전송</button>
+                    <button id="summit_btn">GO</button>
                 </div>
             </div>
         </div>

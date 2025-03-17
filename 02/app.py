@@ -28,6 +28,10 @@ def indexPage():
 def faceFit():
     return render_template("faceFit.html")
 
+@app.route("/faceFit2")
+def faceFit2():
+    return render_template("thinking.html")
+
 if __name__ == "__main__":
     app.run( debug=True)
     # app.run(host="0.0.0.0", port=5017, debug=True)
