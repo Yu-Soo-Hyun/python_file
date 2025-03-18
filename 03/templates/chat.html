@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="../static/js/chat.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="../static/css/chat.css">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="site-nav js-site-nav"
+        role="navigation"
+        aria-label="navigation">
+
+        <div class="site-nav__curtain js-nav-curtain"></div>
+
+        <div class="wrapper wrapper--nav-area">
+
+        <button class="menu-button js-menu-button"
+            aria-expanded="false"
+            aria-controls="menu"
+            aria-label="Menu button">
+            <span class="menu-button__lines">
+            <span class="menu-button__line"></span>
+            <span class="menu-button__line"></span>
+            <span class="menu-button__line"></span>
+            </span>
+        </button>
+
+        <ul class="site-nav__menu u-list-reset js-menu"  id="menu">
+            <!-- <li><a class="site-nav__link scroll-nav" href="#" data-target="#section-what">What</a></li>
+            <li><a class="site-nav__link scroll-nav" href="#" data-target="#section-why">Why</a></li>
+            <li><a class="site-nav__link scroll-nav" href="#" data-target="#aboutus">About Us</a></li> -->
+            <li><a class="site-nav__link" href="./index.html">Home</a></li>
+        </ul>
+
+        <a class="logo" href="./index.html">
+            Face-Fit
+        </a>
+        </div>
+    </nav>
+
+    <!-- 콘텐츠 -->
+    <div id="box_cloud"></div>
+    <div id="main_box">
+        <!-- 카메라존 -->
+        <div id="camera_zone">
+            <div id="camera">
+                <span class="window_top"><strong id="status">카메라 OFF</strong><p>X</p></span>
+
+                <!-- 임시 시용 버튼 -->
+                <div class="btn-container">
+                    <button id="startCam">캠 켜기(임시)</button>
+                    <button id="screenShot">사진촬영(임시)</button>
+                    <button id="stopCam">캠 끄기(임시)</button>
+                    <button id="clearCanvas">초기화(임시)</button>
+                </div>
+
+                <!-- 화상 -->
+                <div id="camera_view">
+                    <video id="videoElement" autoplay></video>
+                    <canvas id="outputCanvas" ></canvas>
+                    <!-- <div>
+                    </div> -->
+                </div>
+            </div>
+
+            <div id="glasses">
+
+                <!-- 하단 -->
+                <div id="camera_under">
+                    <!-- 안경 스크롤 -->
+                    <div id="glass_lists">
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/5.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li class="colorpalette" style="background-color: red;"></li>
+                                <li class="colorpalette" style="background-color: rgb(223, 220, 78);"></li>
+                            </div>
+                        </div>
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/6.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li class="colorpalette" style="background-color: rgb(139, 90, 172);"></li>
+                                <li class="colorpalette" style="background-color: rgb(110, 111, 117);"></li>
+                                <li class="colorpalette" style="background-color: rgb(0, 0, 0);"></li>
+                            </div>
+                        </div>
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/7.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li style="background-color: rgb(135, 177, 194);"><div class="colorpalette" ></li>
+                                <li class="colorpalette" style="background-color: rgb(63, 25, 25);"></li>
+                            </div>
+                        </div>
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/5.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li class="colorpalette" style="background-color: rgb(34, 33, 33);"></li>
+                                <li class="colorpalette" style="background-color: rgb(209, 200, 200);"></li>
+                            </div>
+                        </div>
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/6.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li class="colorpalette" style="background-color: rgb(97, 85, 85);"></li>
+                                <li class="colorpalette" style="background-color: rgb(32, 15, 59);"></li>
+                                <li class="colorpalette" style="background-color: rgb(160, 160, 160);"></li>
+                            </div>
+                        </div>
+                        <div class="glass_boxs">
+                            <div class="glass_img">
+                                <img src="../static/img/7.png" />
+                            </div>
+                            <div class="glass_colors">
+                                <li class="colorpalette" style="background-color: rgb(228, 67, 67);"></li>
+                                <li class="colorpalette" style="background-color: rgb(74, 126, 59);"></li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- 채팅존 -->
+        <div id="chat_zone">
+            <span class="window_top"><p>X</p></span>
+            <!-- 대화-->
+            <div id="chat">
+                <!-- 말풍선 -->
+                <div id="chat_talks">
+                    <div class="ai_talk">
+                        <div>
+                            어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구
+                        </div>
+                    </div>
+                    <div class="hm_talk">
+                        <div>
+                            질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요
+                        </div>
+                    </div>
+                    <div class="ai_talk">
+                        <div>
+                            답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구 답변이요 어쩌구 저쩌구구답변이요 어쩌구 저쩌구구
+                        </div>
+                    </div>
+                    <div class="hm_talk">
+                        <div>
+                            엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기 엄청나게 긴 장문의 문장 채우기
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+            <!-- 입력 -->
+            <div id="chat_inputs">
+                <div>
+                    <!-- <div id="add_file"> + </div> -->
+                    <textarea id="text_input" placeholder="Type a message..."></textarea>
+                    <button id="summit_btn">GO</button>
+                </div>
+            </div>
+
+        </div>
+        
+    </div>
+
+
+</body>
+</html>
