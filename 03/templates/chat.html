@@ -6,8 +6,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script> -->
     <script src="../static/js/chat.js" defer></script>
     <link rel="stylesheet" type="text/css" href="../static/css/chat.css">
     <title>Document</title>
@@ -60,6 +60,7 @@
                     <button id="screenShot">사진촬영(임시)</button>
                     <button id="stopCam">캠 끄기(임시)</button>
                     <button id="clearCanvas">초기화(임시)</button>
+                    <button id="goToFile">파일전송(임시)</button>
                 </div>
 
                 <!-- 화상 -->
@@ -146,12 +147,12 @@
             <div id="chat">
                 <!-- 말풍선 -->
                 <div id="chat_talks">
-<!--                     
                     <div class="ai_talk">
                         <div>
-                            어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구어쩌구저쩌구구
+                            안녕하세요? 저는 얼굴형에따른 안경 추천 챗봇입니다. 카메라를 사용하시겠어요?
                         </div>
                     </div>
+                    <!--                     
                     <div class="hm_talk">
                         <div>
                             질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요 질문이요질문이요질문이요
