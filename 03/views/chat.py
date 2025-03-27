@@ -67,6 +67,7 @@ def camera_stop(input=None):
 
 def face_shape_info(input=None):
     result_type = 'facefit'
+    # DB가져오ㅘ서 face_shapes 가져옴
     text_message = face_shapes
     print('face_shape_info 실행 *****')
 
