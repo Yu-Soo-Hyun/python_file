@@ -122,8 +122,14 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+#camera_view>#outputCanvas{
     object-fit: cover;
     transform: scaleX(-1);
+}
+#camera_view>#previewCanvas {
+    object-fit: contain;
+    transform: none;
 }
 
 #glasses{

@@ -118,6 +118,12 @@ $(document).ready(function () {
     });
 });
 
+// 채팅 스크롤 맨 아래로 
+function scrolling_chat(){
+    $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
+}
+
+
 
 // 웹캠
 let video = document.getElementById("videoElement");
@@ -193,6 +199,63 @@ $('#ttest').on('click', function(){
 
     })
 })
+
+// 파일 추가
+$('#addFile').on('click', function(){
+    addFile();
+});
+$(document).on("click", "#add_photo", function () { 
+    $('#file_input').click();
+});
+
+
+
+// 사진첨부시 캔버스 그리기기
+$(document).on("change", "#file_input", function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            // const canvas = document.getElementById("outputCanvas");
+            const ctx = canvas.getContext("2d");
+            canvas.style.transform = "none";
+            canvas.style.objectFit = "contain";
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // 이미지 그리기
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    addFilefin();
+});
+
+// 파일추가 및 추가 완료 
+function addFile(){
+    $('#chat_talks').append(`<div class="ai_talk ai_talk_img" ><div style="text-align: center;">
+        <img id="add_photo" src="../static/img/addfile.png" style="width: 150px; object-fit: contain; border-radius: 10px; cursor:pointer" />
+        </div></div>`);
+    scrolling_chat();
+}
+function addFilefin(){
+
+    $(".ai_talk_img #add_photo").remove();
+    $(".ai_talk_img div").append(`
+        <img id="add_check" src="../static/img/addFilefin.png" 
+             style="width: 150px; object-fit: contain; border-radius: 10px;" />
+    `);
+
+    $(".ai_talk_img").removeClass("ai_talk_img");
+    scrolling_chat();
+}
 
 
 // 사진get
@@ -278,9 +341,19 @@ async function setupCamera() {
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
+        camera_on();
         return new Promise(resolve => video.onloadedmetadata = resolve);
     } catch (error) {
         console.error("웹캠 접근 실패:", error);
+        if (error.name === "NotAllowedError") {
+            // alert("웹캠 사용이 허용되지 않았습니다. 브라우저 설정에서 권한을 확인해 주세요.");
+            statusText.textContent = "웹캠 권한 없음";
+        } else if (error.name === "NotFoundError") {
+            // alert("웹캠 장치가 감지되지 않았습니다.");
+            statusText.textContent = "웹캠 장치 탐지실패";
+        } else {
+            alert("웹캠을 사용할 수 없습니다: " + error.message);
+        }
     }
 }
 
@@ -408,9 +481,10 @@ function captureFace() {
         return;
     }
     
-    
     let captureCanvas = canvas
     // let captureCanvas = document.createElement("canvas");
+    canvas.style.transform = "scaleX(-1)";
+    canvas.style.objectFit = "cover";
     captureCanvas.width = video.videoWidth;
     captureCanvas.height = video.videoHeight;
     let captureCtx = captureCanvas.getContext("2d");
@@ -433,6 +507,7 @@ function stopCamera() {
         video.srcObject = null;
         videoStream = null;
         statusText.textContent = "카메라 off";
+        camera_off();
         console.log("카메라 종료됨");
     }
 }
@@ -449,64 +524,65 @@ chat_history = []
 // 전송 
 function summit_chat(){
     let message = $('#text_input').val().replace(/\n/g, ' ');
-    $('#chat_talks').append(`<div class="hm_talk"><div>${message}</div></div>`)
-    $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
-    $('#text_input').val('');
-    $.ajax({
-        url:'/chat/talks',
-        type:'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            message: message,
-            chat_history: chat_history
-         }),
-            success: function (response) {
-                chat_history.push({"role": "user", "content": message})
-                console.log(response);
-                let result_type = response.result_type;
-                if (result_type == 'camera'){
-                    $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
-                    clearCanvas();
-                    setupCamera();
-                    chat_history.push({"role": "assistant", "content": response.text_message})
-                } else if(result_type == 'cheese'){
-                    $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
-                    clearCanvas();
-                    rotationFace();
-                    chat_history.push({"role": "assistant", "content": response.text_message})
-                }else if(result_type == 'stop'){
-                    $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
-                    stopCamera();
-                    clearCanvas();
-                    chat_history.push({"role": "assistant", "content": response.text_message})
-                }else if(result_type == 'facefit'){
-                    let fit_chat ='';
-                    let save_text ='';
-                    response.text_message.forEach(function(shape, idx) {
-                        console.log(shape);
-                        fit_chat += `
-                            <div class='fit_chat'>
-                                <h4>${shape.title}</h4>
-                                <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
-                                <p>${shape.desc}</p>
-                            </div>`;
-                        save_text += ' ',shape.title, ' : '
-                        save_text += shape.desc
-                    });
-                    $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
-                    chat_history.push({"role": "assistant", "content": save_text})
-                }else {
-                    $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
-                    chat_history.push({"role": "assistant", "content": response.text_message})
+    if (message != ''){
+
+        $('#chat_talks').append(`<div class="hm_talk"><div>${message}</div></div>`)
+        $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
+        $('#text_input').val('');
+        $.ajax({
+            url:'/chat/talks',
+            type:'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                message: message,
+                chat_history: chat_history
+             }),
+                success: function (response) {
+                    chat_history.push({"role": "user", "content": message})
+                    console.log(response);
+                    let result_type = response.result_type;
+                    if (result_type == 'camera'){
+                        $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
+                        clearCanvas();
+                        setupCamera();
+                        chat_history.push({"role": "assistant", "content": response.text_message})
+                    } else if(result_type == 'cheese'){
+                        $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
+                        clearCanvas();
+                        rotationFace();
+                        chat_history.push({"role": "assistant", "content": response.text_message})
+                    }else if(result_type == 'stop'){
+                        $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
+                        stopCamera();
+                        clearCanvas();
+                        chat_history.push({"role": "assistant", "content": response.text_message})
+                    }else if(result_type == 'facefit'){
+                        let fit_chat ='';
+                        let save_text ='';
+                        response.text_message.forEach(function(shape, idx) {
+                            console.log(shape);
+                            fit_chat += `
+                                <div class='fit_chat'>
+                                    <h4>${shape.title}</h4>
+                                    <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
+                                    <p>${shape.desc}</p>
+                                </div>`;
+                            save_text += ' ',shape.title, ' : '
+                            save_text += shape.desc
+                        });
+                        $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
+                        chat_history.push({"role": "assistant", "content": save_text})
+                    }else {
+                        $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
+                        chat_history.push({"role": "assistant", "content": response.text_message})
+                    }
+                    scrolling_chat();
+                },
+                error: function (xhr, status, error) {
+                    console.log("에러 발생: " + error);
                 }
-                $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
-                
-                
-            },
-            error: function (xhr, status, error) {
-                console.log("에러 발생: " + error);
-            }
-    })
+        })
+    }
 }
 
 $('#summit_btn').on('click', function(){
@@ -520,5 +596,34 @@ $('#text_input').on('keydown', function(e) {
     }
 });
 
+
+
+
+
+// 카메라 켜짐 꺼짐 신호 
+function camera_on(){
+    $.ajax({
+        url:'https://facefit.halowing.com:58000/webcam/state/on/',
+        type:'GET',
+        success: function(response){
+            console.log(response);
+        },
+        error: function (xhr, status, error) {
+            console.log("에러 발생: " + error);
+        }
+    })
+}
+function camera_off(){
+    $.ajax({
+        url:'https://facefit.halowing.com:58000/webcam/state/off/',
+        type:'GET',
+        success: function(response){
+            console.log(response);
+        },
+        error: function (xhr, status, error) {
+            console.log("에러 발생: " + error);
+        }
+    }) 
+}
 
 
