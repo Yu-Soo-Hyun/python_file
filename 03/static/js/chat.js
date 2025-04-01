@@ -151,11 +151,121 @@ $('#screenShot').on('click', function(){
         rotationFace();
     }
 });
+// 사진촬영 클릭(카메라버튼)
+$('#camera_btn>img').on('click', function(){
+    if (!isCounting) {
+        rotationFace();
+    }
+});
 
 // 캔버스 날리기 
 $('#clearCanvas').on('click', function(){
     clearCanvas();
 });
+
+// 리스트/버튼 전환 
+$('#listAndBtn').on('click', function(){
+    list_and_btn();
+})
+
+// 사진전송 
+$('#goToFile').on('click', function(){
+    goToFile();
+})
+
+// 사진받기기 
+$('#getToFile').on('click', function(){
+    getToFile();
+})
+
+// test
+$('#ttest').on('click', function(){
+    $.ajax({
+        url: "https://facefit.halowing.com:58000/files/offset/0/limit/10/",
+        type: "GET",
+        success: function(response) {
+            console.log("성공:");
+            console.log(response);
+        },
+        error: function(xhr, status, error) {
+            console.error("실패:", error);
+        }
+
+    })
+})
+
+
+// 사진get
+function getToFile(){
+    let fileId = $('#file_id').val();
+
+    $.ajax({
+        url: "https://facefit.halowing.com:58000/file/"+fileId,
+        type: "GET",
+        success: function(response) {
+            console.log("성공:");
+            console.log(response);
+        },
+        error: function(xhr, status, error) {
+            console.error("실패:", error);
+        }
+
+    })
+
+}
+
+// 사진전송 
+function goToFile(){
+    // 캔버스 이미지 
+    let imageDataURL = canvas.toDataURL("image/png");
+    
+    console.log('imageDataURL');
+    console.log(imageDataURL);
+    // console.log(imageDataURL)
+    // 형식 변경 
+    function dataURLtoBlob(dataurl) {
+        let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+    let imageBlob = dataURLtoBlob(imageDataURL);
+
+    // FormData
+    let formData = new FormData();
+    formData.append("file", imageBlob, "captured_image.png");
+
+    console.log('imageBlob');
+    console.log(imageBlob);
+    $.ajax({
+        url: "https://facefit.halowing.com:58000/file/",
+        type: "POST",
+        data: formData,
+        processData: false,     
+        contentType: false,  
+        success: function(response) {
+            console.log("성공:", response);
+        },
+        error: function(xhr, status, error) {
+            console.error("실패:", error);
+        }
+
+    })
+
+}
+
+//전환 f
+function list_and_btn(){
+    if ($("#camera_under").is(":visible")) {
+        $("#camera_under").hide();
+        $("#camera_btn").show();
+      } else {
+        $("#camera_under").show();
+        $("#camera_btn").hide();
+      }
+}
 
 
 // 카메라 on 

@@ -4,6 +4,7 @@ from views.chat import chat_bp
 
 app = Flask(__name__)
 # CORS(app) 
+CORS(app, origins=["http://127.0.0.1:5000"])
 
 # Blueprint 
 app.register_blueprint(chat_bp)
