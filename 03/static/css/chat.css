@@ -125,11 +125,7 @@ body {
 }
 #camera_view>#outputCanvas{
     object-fit: cover;
-    transform: scaleX(-1);
-}
-#camera_view>#previewCanvas {
-    object-fit: contain;
-    transform: none;
+    /* transform: scaleX(-1); */
 }
 
 #glasses{

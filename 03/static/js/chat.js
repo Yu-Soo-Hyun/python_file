@@ -209,6 +209,53 @@ $(document).on("click", "#add_photo", function () {
 });
 
 
+// 받은 url로 캔버스 그리기 
+function drawing_canvas(url){
+    // $('#chat_talks').append('<div class="ai_talk ai_talk_img" ><div style="text-align: center;"> \
+    //     <img id="add_photo" src="' + url + '" style="width: 150px; object-fit: contain; border-radius: 10px; cursor:pointer" /> \
+    //     </div></div>');
+    const img = new Image();
+
+    img.onload = function () {
+        // const canvas = document.getElementById("outputCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const canvasWidth = 600;
+        const canvasHeight = 400;
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        canvas.style.transform = "none";
+        canvas.style.objectFit = "contain";
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // 비율 유지 정중앙 배치
+        const imgRatio = img.width / img.height;
+        const canvasRatio = canvasWidth / canvasHeight;
+
+        let drawWidth, drawHeight;
+        if (imgRatio > canvasRatio) {
+            drawWidth = canvasWidth;
+            drawHeight = canvasWidth / imgRatio;
+        } else {
+            drawHeight = canvasHeight;
+            drawWidth = canvasHeight * imgRatio;
+        }
+
+        const offsetX = (canvasWidth - drawWidth) / 2;
+        const offsetY = (canvasHeight - drawHeight) / 2;
+
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    };
+
+    img.onerror = function () {
+        console.error("이미지 로드 실패:", url);
+    };
+
+    img.src = url;
+}
 
 // 사진첨부시 캔버스 그리기기
 $(document).on("change", "#file_input", function (event) {
@@ -222,7 +269,7 @@ $(document).on("change", "#file_input", function (event) {
         img.onload = function () {
             // const canvas = document.getElementById("outputCanvas");
             const ctx = canvas.getContext("2d");
-            canvas.style.transform = "none";
+            // canvas.style.transform = "none";
             canvas.style.objectFit = "contain";
 
             canvas.width = img.width;
@@ -261,13 +308,14 @@ function addFilefin(){
 // 사진get
 function getToFile(){
     let fileId = $('#file_id').val();
-
     $.ajax({
         url: "https://facefit.halowing.com:58000/file/"+fileId,
         type: "GET",
         success: function(response) {
-            console.log("성공:");
-            console.log(response);
+            const image_url = response.url;
+            console.log(response.url);
+            drawing_canvas(image_url);
+            // 캔버스에 그리기기
         },
         error: function(xhr, status, error) {
             console.error("실패:", error);
@@ -481,19 +529,27 @@ function captureFace() {
         return;
     }
     
-    let captureCanvas = canvas
-    // let captureCanvas = document.createElement("canvas");
-    canvas.style.transform = "scaleX(-1)";
-    canvas.style.objectFit = "cover";
-    captureCanvas.width = video.videoWidth;
-    captureCanvas.height = video.videoHeight;
-    let captureCtx = captureCanvas.getContext("2d");
+    const captureCanvas = canvas;
+    const captureCtx = captureCanvas.getContext("2d");
 
-    captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+    // captureCanvas.style.transform = "scaleX(-1)";
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+    
+    // 캔버스 사이즈 설정
+    captureCanvas.width = width;
+    captureCanvas.height = height;
+    captureCanvas.style.objectFit = "cover";
+    
+    // 반전 
+    captureCtx.save();                      // 현재 상태 저장
+    captureCtx.translate(width, 0);         // 우측 끝으로 캔버스 원점 이동
+    captureCtx.scale(-1, 1);                // 좌우 반전
+    captureCtx.drawImage(video, 0, 0, width, height);
+    captureCtx.restore();  
 
     // 캡처된 이미지 데이터 (Base64 PNG)
     let imageDataURL = captureCanvas.toDataURL("image/png");
-    console.log("캡처된 이미지 데이터:", imageDataURL);
     stopCamera(); //반복 x
 
     return imageDataURL;
