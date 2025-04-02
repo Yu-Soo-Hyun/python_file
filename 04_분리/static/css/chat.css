@@ -1,0 +1,340 @@
+@import url(./base.css);
+
+body {
+    font-family: 'Noto+Sans+KR', sans-serif;
+    color: var(--lightest);
+    background: var(--lightest);
+    font-weight: 300;
+    box-sizing: border-box;
+
+    height: 100vh; /* 전체 화면 높이 */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* 세로 방향으로 요소 배치 */
+}
+.site-nav{
+    background-color: var(--base);
+}
+.site-nav__link {
+    padding: none;
+}
+
+#box_cloud{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url(../img/glasses_img.webp);
+    opacity: 0.2;
+    /* background-color: var(--light);  */
+}
+#box_cloud::before{
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* 콘텐츠 - 공통  */
+#main_box{
+    display: grid;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+@media (min-width: 50rem) {
+    #main_box{
+        max-width: var(--lg);
+        margin: 0 auto;
+        grid-template-columns: 7fr 3fr;
+    }
+}
+@media (max-width: 49.999rem) {
+    #main_box{
+        margin-top: 60px;
+        grid-template-rows: 7fr 3fr;
+    }
+}
+
+#main_box>div{
+    overflow: hidden;
+}
+#main_box .window_top{
+    display: block;
+    width: 100%;
+    height: 35px;
+    padding: 7px;
+    background-color: var(--base);
+}
+.window_top p{
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    display: block;
+    width: 25px;
+    height: 22px;
+    border: 1px solid var(--white);
+    border-radius: 5px;
+    margin: 0;
+    line-height: 20px;
+    text-align: center;
+}
+@media (max-width: 49.999rem) {
+    #main_box .window_top{
+        display: none;
+    }
+}
+
+
+/*  콘텐츠 - 카메라  */
+#camera_zone{
+    display: grid;
+    gap: 20px;
+    grid-template-rows: 1fr 180px; 
+    overflow: hidden;
+}
+#camera_zone>div{   
+    overflow: hidden;
+    border-radius: 10px;
+}
+#camera{
+    backdrop-filter: blur(5px);
+    background-color:rgba(255, 255, 255, 0.5);
+    
+}
+#camera_view{
+    position: absolute;
+    top: 35px;
+    background-color: var(--lighter);
+    width: 100%;
+    height: calc(100% - 35px);
+    /* aspect-ratio: 16 / 9; */
+}
+#camera_view>video{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+#camera_view>canvas{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#camera_view>#outputCanvas{
+    object-fit: cover;
+    /* transform: scaleX(-1); */
+}
+
+#glasses{
+    backdrop-filter: blur(5px);
+    background-color:rgba(255, 255, 255, 0.5);
+
+}
+@media (min-width: 50rem) {
+    #camera_zone{
+        margin: 20px;
+    }
+}
+@media (max-width: 49.999rem) {
+    #camera_zone{
+        gap: 0;
+        grid-template-rows: 1fr 150px; 
+    }
+    #camera_zone>div{   
+        border-radius: 0;
+    }
+}
+/* 안경미리보기 */
+#camera_under{
+    position: absolute;
+    display: none;  /*  onoff */
+    width: 100%;
+    height: 100%;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 20px;
+}
+#glass_lists{
+    height: 100%;
+    width: fit-content;
+    display: flex;
+    gap: 20px;
+    overflow: visible; 
+    /* cursor: grab; */
+    scroll-behavior: smooth; 
+}
+#camera_under::-webkit-scrollbar {
+    display: none;
+}
+.glass_boxs{
+    /* background-color: #eee; */
+    border: 2px solid var(--base-darker);
+    height: 100%;
+    width: 180px;
+    border-radius: 10px;
+}
+.glass_img{
+    height: 75%;
+    width: 100%;
+    padding: 5px;
+}
+.glass_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.glass_colors{
+    width: 100%;
+    height: 25%;
+    display: flex;
+    margin: 0 10px;
+}
+.glass_colors>li{
+    display: block;
+    height: 20px;
+    width: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    margin: 0 2px;
+    border: 0.5px solid #fff;
+}
+/*  촬영 버튼  */
+#camera_btn{
+    display: block; 
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+#camera_btn>img{
+    margin-top: 40px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+
+/* 임시 */
+.btn-container{
+    z-index: 10;
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    width: 100%;
+    /* display: none; */
+}
+
+
+
+
+/* 콘텐츠 - 챗 */
+#chat_zone{
+    backdrop-filter: blur(5px);
+    background-color:rgba(255, 255, 255, 0.5);
+    margin: 20px;
+    border-radius: 10px;
+}
+@media (min-width: 50rem) {
+    #chat_zone{
+        margin-left: 0;
+    }
+}
+@media (max-width: 49.999rem) {
+    #chat_zone{
+        margin: 0;
+    }
+}
+
+#chat{
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom left, var(--lighter) 20%, var(--light) 100%);
+}
+#chat_talks{
+    height: calc(100% - 95px);
+    width: 100%;
+    padding: 10px;
+    overflow:auto;
+}
+#chat_talks>div{
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+
+}
+.ai_talk{
+    padding-right: 50px;
+}
+.ai_talk>div{
+    background-color: var(--base-darker);
+}
+.hm_talk{
+    padding-left: 50px;
+    color: var(--base-darker);
+}
+.hm_talk>div{
+    background-color: var(--light);
+}
+#chat_talks>div>div{
+    padding: 10px;
+    border-radius: 10px;
+}
+
+
+#chat_inputs{
+    position: absolute;
+    bottom: 0;
+    height: 60px;
+    width: 100%;
+    text-align: center;
+    background-color: var(--base);
+}
+#chat_inputs>div{
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    display: flex;
+} 
+#text_input{
+    display: block;
+    width: calc(100% - 50px);
+    height: 100%;
+    resize: none;
+    border: none;
+    border-radius: 30px;
+    padding: 10px;
+    background-color: var(--base-lighter);
+    color: var(--base-darker);
+}
+#text_input:focus{
+    outline: none;
+}
+#text_input::-webkit-scrollbar {
+    display: none;
+}
+#summit_btn{
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--base-darker);
+    color: var(--base-lighter);
+    
+}
+
+@media (max-width: 49.999rem) {
+    #chat_talks{
+        height: calc(100% - 60px);
+    }
+}
