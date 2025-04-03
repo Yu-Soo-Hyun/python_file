@@ -8,6 +8,7 @@ function summit_chat(){
         $('#chat_talks').append(`<div class="hm_talk"><div>${message}</div></div>`)
         $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
         $('#text_input').val('');
+        loading();
         $.ajax({
             url:'/chat/talks',
             type:'POST',
@@ -17,6 +18,7 @@ function summit_chat(){
                 chat_history: chat_history
              }),
                 success: function (response) {
+                    loading_fin();
                     chat_history.push({"role": "user", "content": message})
                     console.log(response);
                     let result_type = response.result_type;
@@ -58,6 +60,7 @@ function summit_chat(){
                     scrolling_chat();
                 },
                 error: function (xhr, status, error) {
+                    loading_fin();
                     console.log("에러 발생: " + error);
                 }
         })

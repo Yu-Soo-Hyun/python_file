@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실시간 안경 가상 피팅</title>
+  <style>
+    #camera_view {
+      position: relative;
+      width: 640px;
+      height: 480px;
+    }
+
+    video, canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* 셀카처럼 좌우 반전 */
+    }
+  </style>
+</head>
+<body>
+
+  <h2>😎 안경 가상 피팅</h2>
+  <div id="camera_view">
+    <video id="videoElement" autoplay muted playsinline></video>
+    <canvas id="overlayCanvas"></canvas>
+  </div>
+
+  <!-- FaceMesh CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <script>
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('overlayCanvas');
+    const ctx = canvas.getContext('2d');
+    const glassesImg = new Image();
+    glassesImg.src = '../static/img/5.png'; // 안경 이미지
+
+    const glassesTempleImg = new Image();
+    glassesTempleImg.src = '../static/img/5.png'; // 안경 다리 이미지
+
+
+    canvas.width = 640;
+    canvas.height = 480;
+
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    function onResults(results) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+            
+            const landmarks = results.multiFaceLandmarks[0];
+
+            // 눈 위치 (왼/오른쪽 눈꼬리)
+            const leftEye = landmarks[33];  // 왼쪽 눈꼬리
+            const rightEye = landmarks[263]; // 오른쪽 눈꼬리
+
+            const eyeX = (leftEye.x + rightEye.x) / 2 * canvas.width;
+            const eyeY = (leftEye.y + rightEye.y) / 2 * canvas.height;
+
+            const dx = (rightEye.x - leftEye.x) * canvas.width;
+            const dy = (rightEye.y - leftEye.y) * canvas.height;
+            const angle = Math.atan2(dy, dx);
+            const glassesWidth = Math.sqrt(dx * dx + dy * dy) * 1.5; // 눈 간 거리 x 2
+            const aspectRatio = glassesImg.height / glassesImg.width;
+            const glassesHeight = glassesWidth * aspectRatio;
+
+            ctx.save();
+            ctx.translate(eyeX, eyeY);
+            ctx.rotate(angle);
+            ctx.drawImage(glassesImg, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);
+            ctx.restore();
+
+            // 얼굴 회전 감지 (yaw)
+            const nose = landmarks[1];
+            const leftCheek = landmarks[234];
+            const rightCheek = landmarks[454];
+
+            const leftX = leftCheek.x * canvas.width;
+            const rightX = rightCheek.x * canvas.width;
+            const noseX = nose.x * canvas.width;
+            const faceCenterX = (leftX + rightX) / 2;
+            const yaw = noseX - faceCenterX;
+
+            // 👇 안경 프레임 왼/오른쪽 끝점 (프레임 중심 + 방향 * 절반 폭)
+            const leftEndX = eyeX - Math.cos(angle) * (glassesWidth / 2);
+            const leftEndY = eyeY - Math.sin(angle) * (glassesWidth / 2);
+            const rightEndX = eyeX + Math.cos(angle) * (glassesWidth / 2);
+            const rightEndY = eyeY + Math.sin(angle) * (glassesWidth / 2);
+
+            // 👇 귀 좌표
+            const leftEar = landmarks[127];
+            const rightEar = landmarks[356];
+            const leftEarX = leftEar.x * canvas.width;
+            const leftEarY = leftEar.y * canvas.height;
+            const rightEarX = rightEar.x * canvas.width;
+            const rightEarY = rightEar.y * canvas.height;
+
+            
+
+            // 📌 회전 방향에 따라 안경 다리 붙이기
+            if (yaw > 15) {
+                // 오른쪽으로 돌린 경우 → 왼쪽 다리만
+                const dx = leftEarX - leftEndX;
+                const dy = leftEarY - leftEndY;
+                const angleToEar = Math.atan2(dy, dx);
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const height = length * (glassesTempleImg.height / glassesTempleImg.width);
+
+                ctx.save();
+                ctx.translate(leftEndX, leftEndY);
+                ctx.rotate(angleToEar);
+                ctx.drawImage(glassesTempleImg, 0, -height / 2, length*1.5, height);
+                ctx.restore();
+
+            } else if (yaw < -15) {
+                // 왼쪽으로 돌린 경우 → 오른쪽 다리만
+                const dx = rightEarX - rightEndX;
+                const dy = rightEarY - rightEndY;
+                const angleToEar = Math.atan2(dy, dx);
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const height = length * (glassesTempleImg.height / glassesTempleImg.width);
+
+                ctx.save();
+                ctx.translate(rightEndX, rightEndY);
+                ctx.rotate(angleToEar);
+                ctx.drawImage(glassesTempleImg, 0, -height / 2, length*1.5, height);
+                ctx.restore();
+            }
+
+                           
+            
+        }
+    }
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await faceMesh.send({ image: video });
+      },
+      width: 640,
+      height: 480
+    });
+
+    camera.start();
+  </script>
+</body>
+</html>

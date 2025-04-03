@@ -8,7 +8,7 @@ app = Flask(__name__)
 def index():
     return render_template("main.html")
 
-@app.route("/chat")
+@app.route("/chat1")
 def chat():
     return render_template("chat.html")
 
@@ -31,6 +31,10 @@ def faceFit():
 @app.route("/faceFit2")
 def faceFit2():
     return render_template("thinking.html")
+
+@app.route("/glassesing")
+def glassesing():
+    return render_template("glassesing.html")
 
 if __name__ == "__main__":
     app.run( debug=True)

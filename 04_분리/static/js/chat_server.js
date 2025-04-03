@@ -31,6 +31,7 @@ function summit_chat(){
         $('#chat_talks').append(`<div class="hm_talk"><div>${message}</div></div>`)
         $('#chat_talks').scrollTop($('#chat_talks')[0].scrollHeight);
         $('#text_input').val('');
+        loading();
         $.ajax({
             url:'https://facefit.halowing.com:58000/chat/',
             type:'POST',
@@ -40,6 +41,7 @@ function summit_chat(){
                 request_message : message
              }),
                 success: function (result) {
+                    loading_fin();
                     msg_no += 1;
                     console.log(result);
                     let task_id = result.task_id;
@@ -140,6 +142,7 @@ function summit_chat(){
                     scrolling_chat();
                 },
                 error: function (xhr, status, error) {
+                    loading_fin();
                     console.log("에러 발생: " + error);
                 }
         })

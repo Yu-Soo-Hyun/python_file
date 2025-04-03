@@ -125,10 +125,27 @@ function scrolling_chat(){
 
 
 
-// 채팅 내 첨부추가 클릭 동작
-$(document).on("click", "#add_photo", function () { 
-    $('#file_input').click();
-});
+
+// 채팅 막기 
+function loading(){
+    $('#text_input').prop('disabled', true);
+    let lodingText = '<div class="ai_talk loading_text"> \
+            <div>\
+                <div class="loading_dot one"></div>\
+                <div class="loading_dot two"></div>\
+                <div class="loading_dot three"></div>\
+            </div>\
+        </div>';
+
+    $('#chat_talks').append(lodingText);
+    scrolling_chat();
+}
+function loading_fin() {
+    $('.loading_text').remove();
+    $('#text_input').prop('disabled', false);
+}
+
+
 
 // 받은 url로 캔버스 그리기 
 function drawing_canvas(url){
@@ -206,6 +223,12 @@ $(document).on("change", "#file_input", function (event) {
     addFilefin();
 });
 
+
+// 채팅 내 첨부추가 클릭 동작
+$(document).on("click", "#add_photo", function () { 
+    $('#file_input').click();
+});
+
 // 파일추가 및 추가 완료 
 function addFile(){
     $('#chat_talks').append(`<div class="ai_talk ai_talk_img" ><div style="text-align: center;">
@@ -273,9 +296,7 @@ let isLookingStraight = false; // 사용자가 정면을 보고 있는지 여부
 async function setupCamera() {
     try{
 
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { width: 600, height: 400 }
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true});
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
@@ -368,12 +389,16 @@ function startCountdown() {
     isCounting = true;
     let countdownDisplay = document.createElement("p");
     countdownDisplay.id = "countdownText";
-    countdownDisplay.style.fontSize = "30px";
-    countdownDisplay.style.color = "blue";
+    countdownDisplay.style.height = "70px";
+    countdownDisplay.style.width = "100px";
+    countdownDisplay.style.background = "white";
+    countdownDisplay.style.fontSize = "50px";
+    countdownDisplay.style.color = "var(--base)";
     countdownDisplay.style.position = "absolute";
     countdownDisplay.style.top = "10px";
     countdownDisplay.style.left = "10px";
-    countdownDisplay.style.margin = "10px";
+    countdownDisplay.style.lineHeight = "70px";
+    countdownDisplay.style.borderRadius = "5px";
     
     // 기존에 있던 p 요소가 있으면 삭제 후 추가 (중복 방지)
     const existingText = document.getElementById("countdownText");
@@ -389,7 +414,7 @@ function startCountdown() {
             return;
         }
 
-        countdownDisplay.textContent = `📸 ${countdown}`;
+        countdownDisplay.textContent = `😊${countdown}`;
         if (countdown <= 0) {
             clearInterval(countdownInterval);
             countdownInterval = null;
