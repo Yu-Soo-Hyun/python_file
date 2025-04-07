@@ -40,7 +40,7 @@
     glassesImg.src = '../static/img/02.png'; // 안경 이미지
 
     const glassesTempleImg = new Image();
-    glassesTempleImg.src = '../static/img/5.png'; // 안경 다리 이미지
+    glassesTempleImg.src = '../static/'; // 안경 다리 이미지
 
 
     canvas.width = 640;
@@ -144,6 +144,8 @@
 
 
     // 각도별 안경알 비율및 위치 자연스럽게
+    
+    
     function onResults(results) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!(results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0)) return;

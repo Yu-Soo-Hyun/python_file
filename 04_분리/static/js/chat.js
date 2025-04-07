@@ -292,6 +292,17 @@ let countdownInterval = null; // 카운트다운 인터벌 변수
 let isCounting = false; // 현재 카운트다운 진행 중인지 여부
 let isLookingStraight = false; // 사용자가 정면을 보고 있는지 여부
 
+// faceMesh 불러오기 및 설정
+const faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+});
+faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: false, 
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+});
+
 // 카메라 on 
 async function setupCamera() {
     try{
@@ -300,7 +311,7 @@ async function setupCamera() {
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
-        camera_on();
+        // camera_on();
         return new Promise(resolve => video.onloadedmetadata = resolve);
     } catch (error) {
         console.error("웹캠 접근 실패:", error);
@@ -311,7 +322,8 @@ async function setupCamera() {
             // alert("웹캠 장치가 감지되지 않았습니다.");
             statusText.textContent = "웹캠 장치 탐지실패";
         } else {
-            alert("웹캠을 사용할 수 없습니다: " + error.message);
+            // alert("웹캠을 사용할 수 없습니다: " + error.message);
+            
         }
     }
 }
@@ -319,16 +331,6 @@ async function setupCamera() {
 // 정면 탐지
 function rotationFace(){
     if (videoStream) {
-        const faceMesh = new FaceMesh({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-        });
-        
-        faceMesh.setOptions({
-            maxNumFaces: 1,
-            refineLandmarks: false, 
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
 
         faceMesh.onResults(direction);
 
@@ -477,7 +479,7 @@ function stopCamera() {
         video.srcObject = null;
         videoStream = null;
         statusText.textContent = "카메라 off";
-        camera_off();
+        // camera_off();
         console.log("카메라 종료됨");
     }
 }
@@ -499,6 +501,146 @@ $('#text_input').on('keydown', function(e) {
 });
 
 
+// 가상피팅 
+let glassesImg = new Image();  
+let glassesTempleImg = new Image();
+let isFitting = false;
+// 피팅 그리기
+function onResults(results) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log('onResults내부');
+    if (!(results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0)) return;
+    console.log('222');
+    const landmarks = results.multiFaceLandmarks[0];
+    const leftEye = landmarks[33];
+    const rightEye = landmarks[263];
+    const eyeX = (leftEye.x + rightEye.x) / 2 * canvas.width;
+    const eyeY = (leftEye.y + rightEye.y) / 2 * canvas.height;
+
+    const dx = (rightEye.x - leftEye.x) * canvas.width;
+    const dy = (rightEye.y - leftEye.y) * canvas.height;
+    const angle = Math.atan2(dy, dx);
+    const glassesWidth = Math.sqrt(dx * dx + dy * dy) * 1.5;
+    const aspectRatio = glassesImg.height / glassesImg.width;
+    const glassesHeight = glassesWidth * aspectRatio;
+
+    // yaw 계산
+    const noseX = landmarks[1].x * canvas.width;
+    const faceCenterX = ((landmarks[234].x + landmarks[454].x) / 2) * canvas.width;
+    const yaw = (noseX - faceCenterX) / canvas.width;
+
+    // 좌우 비율 조정
+    let yawRatio = (noseX - faceCenterX) / canvas.width;  // 전체 화면 기준으로 정규화 (약 -0.1 ~ 0.1 정도)
+    let leftRatio = 1 + yawRatio * 2.5;
+    let rightRatio = 1 - yawRatio * 2.5;
+    leftRatio = Math.max(0.8, Math.min(1.2, leftRatio));
+    rightRatio = Math.max(0.8, Math.min(1.2, rightRatio));
+
+    // 안경 렌즈 나눠서 그리기 (기준은 오른쪽 끝)
+    ctx.save();
+    ctx.translate(eyeX, eyeY);
+    ctx.rotate(angle);
+
+    const halfSrcW = glassesImg.width / 2;
+    const halfDstW = glassesWidth / 2;
+    const height = glassesHeight;
+
+    // 왼쪽
+    ctx.drawImage(
+      glassesImg,
+      0, 0, halfSrcW, glassesImg.height,
+      -halfDstW, -height / 2,
+      halfDstW * leftRatio, height
+    );
+
+    // 오른쪽
+    ctx.drawImage(
+      glassesImg,
+      halfSrcW, 0, halfSrcW, glassesImg.height,
+      halfDstW - halfDstW * rightRatio, -height / 2,
+      halfDstW * rightRatio, height
+    );
+    ctx.restore();
+
+
+    // 안경다리 ~
+    // 귀 좌표
+    const leftEar = landmarks[127];
+    const rightEar = landmarks[356];
+    const leftEarX = leftEar.x * canvas.width;
+    const leftEarY = leftEar.y * canvas.height;
+    const rightEarX = rightEar.x * canvas.width;
+    const rightEarY = rightEar.y * canvas.height;
+
+    // 프레임의 양 끝점
+    const leftEndX = eyeX - halfDstW;
+    const leftEndY = eyeY - Math.sin(angle) * (halfDstW * leftRatio);
+    const rightEndX = eyeX + halfDstW;
+    const rightEndY = eyeY + Math.sin(angle) * (halfDstW * rightRatio);
+
+    // 다리 붙이기
+    if (yaw > 0.02) {
+      // 오른쪽으로 고개 돌림 → 왼쪽 다리 붙이기
+      const dx = leftEarX - leftEndX;
+      const dy = leftEarY - leftEndY;
+      const angleToEar = Math.atan2(dy, dx);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const templeHeight = length * (glassesTempleImg.height / glassesTempleImg.width);
+
+      ctx.save();
+      ctx.translate(leftEndX, leftEndY);
+      ctx.rotate(angleToEar);
+      ctx.drawImage(glassesTempleImg, 0, -templeHeight / 2, length * 1.5, templeHeight);
+      ctx.restore();
+    } else if (yaw < -0.02) {
+      // 왼쪽으로 고개 돌림 → 오른쪽 다리 붙이기
+      const dx = rightEarX - rightEndX;
+      const dy = rightEarY - rightEndY;
+      const angleToEar = Math.atan2(dy, dx);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const templeHeight = length * (glassesTempleImg.height / glassesTempleImg.width);
+
+      ctx.save();
+      ctx.translate(rightEndX, rightEndY);
+      ctx.rotate(angleToEar);
+      ctx.drawImage(glassesTempleImg, 0, -templeHeight / 2, length * 1.5, templeHeight);
+      ctx.restore();
+    }
+   
+  }
+
+// 피팅시작작
+function set_glassesfit(glassesPath, templePath){
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+    
+    // 캔버스 사이즈 설정
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.transform = "scaleX(-1)";
+    console.log('눌림');
+    // 안경이미지 설정
+    glassesImg.src = glassesPath;
+    glassesTempleImg.src = templePath;
+    // 설정정보로 피팅 실행
+    faceMesh.onResults(onResults);
+    isFitting = true;
+
+    async function detect() {
+        if (!isFitting) return; // fitting이 끝났으면 루프 종료
+        await faceMesh.send({ image: video });
+        requestAnimationFrame(detect);
+    }
+
+    detect(); // 루프 시작
+}
+
+// 피팅종료
+function stop_glassesfit(){
+    isFitting = false;
+    faceMesh.onResults(() => {});
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // 초기화
+}
 
 
 
@@ -579,4 +721,15 @@ $('#ttest').on('click', function(){
 // 파일 추가
 $('#addFile').on('click', function(){
     addFile();
+});
+
+// 안경피팅
+$('#gleassesFit').on('click', function(){
+    let glassesPath = '../static/img/02.png';
+    let templePath = '../static/img/5.png';
+    console.log('누름');
+    set_glassesfit(glassesPath,templePath);
+});
+$('#StopGleassesFit').on('click', function(){
+    stop_glassesfit();
 });
