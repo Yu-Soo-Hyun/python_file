@@ -37,7 +37,7 @@
     const canvas = document.getElementById('overlayCanvas');
     const ctx = canvas.getContext('2d');
     const glassesImg = new Image();
-    glassesImg.src = '../static/img/5.png'; // 안경 이미지
+    glassesImg.src = '../static/img/04.png'; // 안경 이미지
 
     const glassesTempleImg = new Image();
     glassesTempleImg.src = '../static/img/5.png'; // 안경 다리 이미지
@@ -112,7 +112,6 @@
             const rightEarY = rightEar.y * canvas.height;
 
             
-
             // 📌 회전 방향에 따라 안경 다리 붙이기
             if (yaw > 15) {
                 // 오른쪽으로 돌린 경우 → 왼쪽 다리만
@@ -142,8 +141,7 @@
                 ctx.drawImage(glassesTempleImg, 0, -height / 2, length*1.5, height);
                 ctx.restore();
             }
-
-                           
+         
             
         }
     }
