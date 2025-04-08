@@ -503,6 +503,16 @@ $('#text_input').on('keydown', function(e) {
 
 // 가상피팅 
 let glassesImg = new Image();  
+glassesImg.onload = function () { // 공백제거
+    const cropCanvas = cropTransparentImage(glassesImg, 10);
+    // 크롭이미지로 반환 
+    const cropImg = new Image();
+    cropImg.onload = function(){
+        glassesImg.src = cropImg.src;
+    }
+    cropImg.src = cropCanvas.toDataURL();
+    
+};
 let glassesTempleImg = new Image();
 let isFitting = false;
 // 피팅 그리기
@@ -544,12 +554,13 @@ function onResults(results) {
     const halfSrcW = glassesImg.width / 2;
     const halfDstW = glassesWidth / 2;
     const height = glassesHeight;
+    const downY = 8;
 
     // 왼쪽
     ctx.drawImage(
       glassesImg,
       0, 0, halfSrcW, glassesImg.height,
-      -halfDstW, -height / 2,
+      -halfDstW, -height / 2 +downY,
       halfDstW * leftRatio, height
     );
 
@@ -557,7 +568,7 @@ function onResults(results) {
     ctx.drawImage(
       glassesImg,
       halfSrcW, 0, halfSrcW, glassesImg.height,
-      halfDstW - halfDstW * rightRatio, -height / 2,
+      halfDstW - halfDstW * rightRatio, -height / 2  +downY,
       halfDstW * rightRatio, height
     );
     ctx.restore();
@@ -606,8 +617,58 @@ function onResults(results) {
       ctx.drawImage(glassesTempleImg, 0, -templeHeight / 2, length * 1.5, templeHeight);
       ctx.restore();
     }
-   
-  }
+}
+
+// 이미지 공백 크롭 
+function cropTransparentImage(image, padding = 50) {
+    const cropCanvas = document.createElement("canvas");
+    const ctx = cropCanvas.getContext("2d");
+    
+    cropCanvas.width = image.width;
+    cropCanvas.height = image.height;
+    
+    ctx.drawImage(image, 0, 0);
+    
+    const imageData = ctx.getImageData(0, 0, cropCanvas.width, cropCanvas.height);
+    const data = imageData.data;
+    
+    let minX = cropCanvas.width, minY = cropCanvas.height;
+    let maxX = 0, maxY = 0;
+    
+    for (let y = 0; y < cropCanvas.height; y++) {
+        for (let x = 0; x < cropCanvas.width; x++) {
+            const idx = (y * cropCanvas.width + x) * 4;
+            const alpha = data[idx + 3]; // alpha 값
+            
+            if (alpha > 0) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+    }
+    
+    // 패딩 적용
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(cropCanvas.width, maxX + padding);
+    maxY = Math.min(cropCanvas.height, maxY + padding);
+    
+    const croppedWidth = maxX - minX;
+    const croppedHeight = maxY - minY;
+    
+    // 새 캔버스에 크롭된 영역 복사
+    const croppedCanvas = document.createElement("canvas");
+    croppedCanvas.width = croppedWidth;
+    croppedCanvas.height = croppedHeight;
+    
+    const croppedCtx = croppedCanvas.getContext("2d");
+    croppedCtx.drawImage(cropCanvas, minX, minY, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+    
+    return croppedCanvas;
+}
+
 
 // 피팅시작작
 function set_glassesfit(glassesPath, templePath){

@@ -37,11 +37,24 @@
     const canvas = document.getElementById('overlayCanvas');
     const ctx = canvas.getContext('2d');
     const glassesImg = new Image();
+
+    glassesImg.onload = function () {
+        const croppedCanvas = cropTransparentImage(glassesImg, 10);
+        
+      // 크롭이미지로 반환 
+      const croppedImg = new Image();
+      croppedImg.onload = function(){
+        glassesImg.src = croppedImg.src;
+      }
+      
+      croppedImg.src = croppedCanvas.toDataURL();
+
+    };
     glassesImg.src = '../static/img/02.png'; // 안경 이미지
+    
 
     const glassesTempleImg = new Image();
-    glassesTempleImg.src = '../static/'; // 안경 다리 이미지
-
+    glassesTempleImg.src = '../static/img/5.png'; // 안경 다리 이미지
 
     canvas.width = 640;
     canvas.height = 480;
@@ -183,12 +196,12 @@
       const halfSrcW = glassesImg.width / 2;
       const halfDstW = glassesWidth / 2;
       const height = glassesHeight;
-
+      const downY = 8;
       // 왼쪽
       ctx.drawImage(
         glassesImg,
         0, 0, halfSrcW, glassesImg.height,
-        -halfDstW, -height / 2,
+        -halfDstW, -height / 2 +downY,
         halfDstW * leftRatio, height
       );
 
@@ -196,7 +209,7 @@
       ctx.drawImage(
         glassesImg,
         halfSrcW, 0, halfSrcW, glassesImg.height,
-        halfDstW - halfDstW * rightRatio, -height / 2,
+        halfDstW - halfDstW * rightRatio, -height / 2 +downY,
         halfDstW * rightRatio, height
       );
       ctx.restore();
@@ -259,6 +272,62 @@
     });
 
     camera.start();
+
+    // 이미지 공백 크롭 
+  function cropTransparentImage(image, padding = 50) {
+      const cropCanvas = document.createElement("canvas");
+      const ctx = cropCanvas.getContext("2d");
+
+      cropCanvas.width = image.width;
+      cropCanvas.height = image.height;
+
+      ctx.drawImage(image, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, cropCanvas.width, cropCanvas.height);
+      const data = imageData.data;
+
+      let minX = cropCanvas.width, minY = cropCanvas.height;
+      let maxX = 0, maxY = 0;
+
+      for (let y = 0; y < cropCanvas.height; y++) {
+          for (let x = 0; x < cropCanvas.width; x++) {
+              const idx = (y * cropCanvas.width + x) * 4;
+              const alpha = data[idx + 3]; // alpha 값
+
+              if (alpha > 0) {
+                  if (x < minX) minX = x;
+                  if (x > maxX) maxX = x;
+                  if (y < minY) minY = y;
+                  if (y > maxY) maxY = y;
+              }
+          }
+      }
+
+      // 패딩 적용
+      minX = Math.max(0, minX - padding);
+      minY = Math.max(0, minY - padding);
+      maxX = Math.min(cropCanvas.width, maxX + padding);
+      maxY = Math.min(cropCanvas.height, maxY + padding);
+
+      const croppedWidth = maxX - minX;
+      const croppedHeight = maxY - minY;
+
+      // 새 캔버스에 크롭된 영역 복사
+      const croppedCanvas = document.createElement("canvas");
+      croppedCanvas.width = croppedWidth;
+      croppedCanvas.height = croppedHeight;
+
+      const croppedCtx = croppedCanvas.getContext("2d");
+      croppedCtx.drawImage(cropCanvas, minX, minY, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+
+      // 결과 반환 (base64 또는 croppedCanvas 사용 가능)
+      return croppedCanvas;
+  }
+
+
+
+
+    
   </script>
 </body>
 </html>
