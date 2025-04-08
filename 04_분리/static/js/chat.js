@@ -786,8 +786,8 @@ $('#addFile').on('click', function(){
 
 // 안경피팅
 $('#gleassesFit').on('click', function(){
-    let glassesPath = '../static/img/02.png';
-    let templePath = '../static/img/5.png';
+    let glassesPath = '../static/img/boston_wt.png';
+    let templePath = '../static/img/temple_wt.png';
     console.log('누름');
     set_glassesfit(glassesPath,templePath);
 });
