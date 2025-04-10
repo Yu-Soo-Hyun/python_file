@@ -1,5 +1,5 @@
 
-
+welcome_chat()
 /// 서버 통신 
 let msg_no = 0;
 // 에러시
@@ -11,12 +11,16 @@ function error_f(status, err){
 // 챗봇 welcome
 function welcome_chat(){
     $.ajax({
-        url: 'https://facefit.halowing.com:58000/welcome/',
+        url: 'https://facefit.halowing.com/welcome/',
         type: 'GET',
+        xhrFields: {
+            withCredentials: true
+        },
         success: function(result){
+            console.log(result);
             $('#chat_talks').append(`<div class="ai_talk"><div>${result.response_message}</div></div>`);
-            clearCanvas();
-            stopCamera();
+            // clearCanvas();
+            // stopCamera();
         },
         error: function(xhr, status, error){
             error_f(status, error);
@@ -33,118 +37,122 @@ function summit_chat(){
         $('#text_input').val('');
         loading();
         $.ajax({
-            url:'https://facefit.halowing.com:58000/chat/',
+            url:'https://facefit.halowing.com/chat/',
             type:'POST',
+            xhrFields: {
+                withCredentials: true
+            },
             contentType: 'application/json',
             data: JSON.stringify({
                 msg_no: msg_no,
                 request_message : message
-             }),
-                success: function (result) {
-                    loading_fin();
-                    msg_no += 1;
-                    console.log(result);
-                    let task_id = result.task_id;
-                    let response_message = result.response_message;
-                    let resutl_data = result.data;
-                    
-                    if (task_id == 'T00'){ // 초기화
-                        msg_no = 0;
-                        clearCanvas();
-                        stopCamera();
-                        $('#chat_talks').empty();
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                        setupCamera();
-                    } 
-                    else if(task_id == 'T01'){ // 사진 캡쳐
-                        clearCanvas();
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                        rotationFace();
-                    }
-                    else if(task_id == 'T02'){ // 사진업로드
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                        addFile();
-                    }
-                    else if(task_id == 'T03'){ // 열굴형 목록 요청
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                        
-                        /////////////////// 해당 내용 추후 resutl_data 보고 변경
-                        let fit_chat ='';
-                        resutl_data.forEach(function(shape, idx) { 
-                            console.log(shape);
-                            fit_chat += `
-                                <div class='fit_chat'>
-                                    <h4>${shape.title}</h4>
-                                    <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
-                                    <p>${shape.desc}</p>
-                                </div>`;
-                        });
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
-
-                    } 
-                    else if(task_id == 'T04'){ // 얼굴형 분석 요청- 파일
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-
-                        /////////////////// 해당 내용 추후 resutl_data 보고 변경
-                        let fit_chat ='';
-                        resutl_data.forEach(function(shape, idx) { 
-                            console.log(shape);
-                            fit_chat += `
-                                <div class='fit_chat'>
-                                    <h4>${shape.title}</h4>
-                                    <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
-                                    <p>${shape.desc}</p>
-                                </div>`;
-                        });
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
-
-                    } 
-                    else if(task_id == 'T05'){ // 얼굴형 분석 요청- 대화
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-
-                        /////////////////// 해당 내용 추후 resutl_data 보고 변경
-                        let fit_chat ='';
-                        resutl_data.forEach(function(shape, idx) { 
-                            console.log(shape);
-                            fit_chat += `
-                                <div class='fit_chat'>
-                                    <h4>${shape.title}</h4>
-                                    <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
-                                    <p>${shape.desc}</p>
-                                </div>`;
-                        });
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
-
-                    } 
-                    else if(task_id == 'T06'){ // 안경 목록 요청    
-                        glasses_list_views(resutl_data); // 추후 수정 필요
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
-                    } 
-                    else if(task_id == 'T07'){ // 안경 상세 정보 요청
-                        /////////////////// 해당 내용 추후 resutl_data 형태 보고 작성성
-
-                    } 
-                    else if(task_id == 'T08'){ // 피팅 이미지 요청
-                        /////////////////// 해당 내용 추후 resutl_data 형태 보고 작성성
-
-                    } 
-                    else if(task_id == 'T09'){
-                        clearCanvas();
-                        setupCamera();
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                    } 
-                    else if(task_id == 'T10'){
-                        stopCamera();
-                        $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
-                    } 
-                    else {
-                    }
-                    scrolling_chat();
-                },
-                error: function (xhr, status, error) {
-                    loading_fin();
-                    console.log("에러 발생: " + error);
+            }),
+            success: function (result) {
+                console.log(result);
+                loading_fin();
+                msg_no += 1;
+                console.log(result);
+                let task_id = result.task_id;
+                let response_message = result.response_message;
+                let resutl_data = result.data;
+                
+                if (task_id == 'T00'){ // 초기화
+                    msg_no = 0;
+                    clearCanvas();
+                    stopCamera();
+                    $('#chat_talks').empty();
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                    setupCamera();
+                } 
+                else if(task_id == 'T01'){ // 사진 캡쳐
+                    clearCanvas();
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                    rotationFace();
                 }
+                else if(task_id == 'T02'){ // 사진업로드
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                    addFile();
+                }
+                else if(task_id == 'T03'){ // 열굴형 목록 요청
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                    
+                    /////////////////// 해당 내용 추후 resutl_data 보고 변경
+                    let fit_chat ='';
+                    resutl_data.forEach(function(shape, idx) { 
+                        console.log(shape);
+                        fit_chat += `
+                            <div class='fit_chat'>
+                                <h4>${shape.title}</h4>
+                                <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
+                                <p>${shape.desc}</p>
+                            </div>`;
+                    });
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
+
+                } 
+                else if(task_id == 'T04'){ // 얼굴형 분석 요청- 파일
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+
+                    /////////////////// 해당 내용 추후 resutl_data 보고 변경
+                    let fit_chat ='';
+                    resutl_data.forEach(function(shape, idx) { 
+                        console.log(shape);
+                        fit_chat += `
+                            <div class='fit_chat'>
+                                <h4>${shape.title}</h4>
+                                <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
+                                <p>${shape.desc}</p>
+                            </div>`;
+                    });
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
+
+                } 
+                else if(task_id == 'T05'){ // 얼굴형 분석 요청- 대화
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+
+                    /////////////////// 해당 내용 추후 resutl_data 보고 변경
+                    let fit_chat ='';
+                    resutl_data.forEach(function(shape, idx) { 
+                        console.log(shape);
+                        fit_chat += `
+                            <div class='fit_chat'>
+                                <h4>${shape.title}</h4>
+                                <img src="../static/img/${shape.img}" alt="${shape.title}" style="width: 150px; object-fit: contain;" />
+                                <p>${shape.desc}</p>
+                            </div>`;
+                    });
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
+
+                } 
+                else if(task_id == 'T06'){ // 안경 목록 요청    
+                    glasses_list_views(resutl_data); // 추후 수정 필요
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${fit_chat}</div></div>`);
+                } 
+                else if(task_id == 'T07'){ // 안경 상세 정보 요청
+                    /////////////////// 해당 내용 추후 resutl_data 형태 보고 작성성
+
+                } 
+                else if(task_id == 'T08'){ // 피팅 이미지 요청
+                    /////////////////// 해당 내용 추후 resutl_data 형태 보고 작성성
+
+                } 
+                else if(task_id == 'T09'){
+                    clearCanvas();
+                    setupCamera();
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                } 
+                else if(task_id == 'T10'){
+                    stopCamera();
+                    $('#chat_talks').append(`<div class="ai_talk"><div>${response_message}</div></div>`);
+                } 
+                else {
+                }
+                scrolling_chat();
+            },
+            error: function (xhr, status, error) {
+                loading_fin();
+                console.log("에러 발생: " + error);
+            }
         })
     }
 }
@@ -155,6 +163,9 @@ function getToFile(){
     $.ajax({
         url: "https://facefit.halowing.com:58000/file/"+fileId,
         type: "GET",
+        xhrFields: {
+            withCredentials: true
+        },
         success: function(response) {
             const image_url = response.url;
             console.log(response.url);
@@ -195,6 +206,9 @@ function goToFile(){
     $.ajax({
         url: "https://facefit.halowing.com:58000/file/",
         type: "POST",
+        xhrFields: {
+            withCredentials: true
+        },
         data: formData,
         processData: false,     
         contentType: false,  
@@ -214,6 +228,9 @@ function camera_on(){
     $.ajax({
         url:'https://facefit.halowing.com:58000/webcam/state/on/',
         type:'GET',
+        xhrFields: {
+            withCredentials: true
+        },
         success: function(response){
             console.log(response);
         },
@@ -226,6 +243,9 @@ function camera_off(){
     $.ajax({
         url:'https://facefit.halowing.com:58000/webcam/state/off/',
         type:'GET',
+        xhrFields: {
+            withCredentials: true
+        },
         success: function(response){
             console.log(response);
         },

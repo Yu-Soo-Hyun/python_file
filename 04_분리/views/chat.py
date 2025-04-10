@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.agents import initialize_agent, Tool, AgentExecutor, create_openai_functions_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+import pymysql
 
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
@@ -73,7 +74,45 @@ def face_shape_info(input=None):
 
     return {"result_type": result_type, 'text_message': text_message}
 
+# 안경검색
+def get_glasses_by_shape(face_shape: str, color=None):
+    # allowed_shapes = ['oval', 'square', 'round', 'heart', 'oblong','']
+    # allowed_colors = ['black', 'white']
 
+    # if face_shape.lower() not in allowed_shapes:
+    #     return {"result_type": "message", "text_message": f"지원하지 않는 얼굴형입니다: {face_shape}"}
+
+    # if color and color.lower() not in allowed_colors:
+    #     color = None  # 무시 
+        
+    connection = pymysql.connect(
+        host='127.0.0.1',   
+        user='facefit',
+        password='1234',
+        db='facefit',
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+    try:
+        with connection.cursor() as cursor:
+            result_type = 'getList'
+            # 기본
+            base_query = "SELECT * FROM glasses WHERE face_shape LIKE %s"
+            params = [f"%{face_shape}%"]
+
+            # 색상조건있을시시
+            if color:
+                base_query += " AND glasses_color LIKE %s"
+                params.append(f"%{color}%")
+
+            cursor.execute(base_query, params)
+            results = cursor.fetchall()
+            return results
+            return {"result_type": result_type, 'text_message': results}
+
+    finally:
+        connection.close()
 
 # tool 등록 
 tools = [
@@ -97,13 +136,24 @@ tools = [
         func=face_shape_info,
         description="열굴형 타입별 정보를 안내함"
     ),
+    Tool(
+        name="get_glasses_by_shape",
+        func=get_glasses_by_shape,
+        description="Get a list of glasses based on face shape and optional color. \
+                    Arguments:\nface_shape: one of ['oval', 'square', 'round', 'heart', 'oblong']\ncolor: optional string like 'black' or 'white'"
+    ),
 ]
 
 #답변 처리 
 
 llm = ChatOpenAI(model='gpt-3.5-turbo')
 prompt = ChatPromptTemplate.from_messages([
-    SystemMessage(content="너는 얼굴형에 따른 안경추천 챗봇이야. 사용자의 요청에 맞게 적절한 기능을 호출해. 적절한 기능이 없는경우 명확한 요청사항을 물어보고, 사용자가 전혀 다른 주제를 이야기 할경우 주의를 줘."),
+    SystemMessage(content= "너는 얼굴형에 따른 안경을 추천하는 전문가 챗봇이야. "
+                "사용자가 특정 얼굴형(oval, square, round, heart, oblong) 또는 색상(black, white)을 언급하면, "
+                "'get_glasses_by_shape' 툴을 사용해서 안경 리스트를 반환하되 결과 값은 data로 가져가기때문에 너는 리스트를 확인하라고 안내 멘트를 해줘. "
+                "사용자가 얼굴형에 대해 물어보면 'face_shape_info'를, "
+                "사진을 찍거나 카메라를 켜달라고 하면 해당 기능을 수행해. "
+                "이 외의 주제는 주의를 줘야 해."),
     MessagesPlaceholder(variable_name="chat_history"),
     MessagesPlaceholder(variable_name="input"),
     MessagesPlaceholder(variable_name="agent_scratchpad")
@@ -151,7 +201,8 @@ def talks():
 
         result = {
             "result_type": tool_result.get("result_type", "message"),
-            "text_message": tool_result.get("text_message", results["output"])
+            "text_message": results["output"],
+            "data": tool_result.get("text_message", results["output"]),
         }
 
     else:
@@ -166,6 +217,20 @@ def talks():
 
 
 
+
+
+
+
+
+
+@chat_bp.route('/get_list', methods=['POST'])
+def list_test():
+    face_type = request.json.get("face_type")
+    color_type = request.json.get("color_type")
+    if color_type != '':
+        return get_glasses_by_shape(face_type,color_type)
+    else:
+        return get_glasses_by_shape(face_type)
 
 
 

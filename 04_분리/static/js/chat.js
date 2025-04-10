@@ -95,11 +95,6 @@ $(document).ready(function () {
         $(this).addClass("active");
         startX = e.pageX;
         scrollLeft = $(this).scrollLeft();
-
-        console.log("mousedown - startX:", startX);
-        console.log("mousedown - scrollLeft:", scrollLeft);
-        console.log("scrollWidth:", $(this)[0].scrollWidth);
-        console.log("clientWidth:", $(this)[0].clientWidth);
     });
 
     $(window).on("mouseup", function () {
@@ -113,8 +108,6 @@ $(document).ready(function () {
         let x = e.pageX;
         let walk = (x - startX) * 2; // ✅ 이동 배율을 3배로 조정
         $("#camera_under").scrollLeft(scrollLeft - walk);
-
-        console.log("mousemove - scrollLeft:", $("#camera_under").scrollLeft());
     });
 });
 
@@ -261,23 +254,61 @@ function list_and_btn(){
 
 // 안경 리스트 나열 
 function glasses_list_views(list){ //이후 데이터 모양보고 작성하기....
+    console.log('glasses_list_views실행행');
+    console.log(list);
+    $('#glass_lists').val();
+    let gl_types = [];
     list.forEach(function(glasses, idx) {
         let glasses_idx = glasses.glasses_idx
+        let glasses_type = glasses.glasses_type
         let glasses_img = glasses.glasses_img
+        let glasses_temple_img = glasses.glasses_temple_img
         let glasses_color = glasses.glasses_color
-        $('glass_lists').append('<div class="glass_boxs"> \
-                                <div class="glass_img"> \
-                                    <img src="../static/img/5.png"> \
-                                </div> \
-                                <div class="glass_colors"> \
-                                    <li class="colorpalette" style="background-color: red;"></li> \
-                                    <li class="colorpalette" style="background-color: rgb(223, 220, 78);"></li> \
-                                </div> \
-                            </div>')
+        let glasses_buy_url = glasses.glasses_buy_url
+        if (!gl_types.includes(glasses_type)) {
+            gl_types.push(glasses_type);
+            $('#glass_lists').append('<div class="glass_boxs" id="'+glasses_type+'"> \
+                                    <div class="glass_img"> \
+                                        <img src="../static/img/'+glasses_img+'.png" class="'+glasses_idx+'"> \
+                                    </div> \
+                                    <div class="glass_colors"> \
+                                        <li class="colorpalette" id="'+glasses_idx+'"><img src="../static/img/'+glasses_img+'.png"></li> \
+                                    </div> \
+                                </div>');
+            $('#'+glasses_idx).data('glass',glasses);
+        }else{
+            $('#'+glasses_type+'>.glass_colors')
+                        .append('<li class="colorpalette" id="'+glasses_idx+'"><img src="../static/img/'+glasses_img+'.png"></li>');
+            $('#'+glasses_idx).data('glass',glasses);
+        }
     });
-
 }
 
+// 색상리스트 크게보기 
+$(document).on("click", ".colorpalette", function () { 
+    let g_idx = $(this).attr('id');
+    let glass = $('#'+g_idx).data('glass');
+    let g_model = glass.glasses_type;
+    let g_img = glass.glasses_img;
+    glasses_color_select(g_idx, g_model, g_img);
+});
+function glasses_color_select(g_idx, g_model, g_img){
+    $('#'+g_model+'>.glass_img>img').attr({
+        src: '../static/img/' + g_img + '.png',
+        class: g_idx
+    });
+}
+
+// 안경시착 적용 
+$(document).on("click", ".glass_img", function () { 
+    stop_glassesfit();
+    let gl_id = $(this).children('img').attr('class');
+    let glass = $('#'+gl_id).data('glass');
+    let glassesPath = '../static/img/'+glass.glasses_img+'.png';
+    console.log(glassesPath);
+    let templePath = '../static/img/'+glass.glasses_temple_img+'.png';
+    set_glassesfit(glassesPath,templePath);
+});
 
 
 
@@ -291,6 +322,7 @@ let countdown = 3; // 초기 카운트다운 값
 let countdownInterval = null; // 카운트다운 인터벌 변수
 let isCounting = false; // 현재 카운트다운 진행 중인지 여부
 let isLookingStraight = false; // 사용자가 정면을 보고 있는지 여부
+let videoStream = null;
 
 // faceMesh 불러오기 및 설정
 const faceMesh = new FaceMesh({
@@ -311,7 +343,7 @@ async function setupCamera() {
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
-        // camera_on();
+        camera_on();
         return new Promise(resolve => video.onloadedmetadata = resolve);
     } catch (error) {
         console.error("웹캠 접근 실패:", error);
@@ -329,6 +361,7 @@ async function setupCamera() {
 }
 
 // 정면 탐지
+let rotationLoopId = null;
 function rotationFace(){
     if (videoStream) {
 
@@ -336,7 +369,7 @@ function rotationFace(){
 
         async function detect() {
             await faceMesh.send({ image: video });
-            requestAnimationFrame(detect);
+            rotationLoopId = requestAnimationFrame(detect);
         }
 
         detect();
@@ -468,6 +501,7 @@ function captureFace() {
     // 캡처된 이미지 데이터 (Base64 PNG)
     let imageDataURL = captureCanvas.toDataURL("image/png");
     stopCamera(); //반복 x
+    cancelAnimationFrame(rotationLoopId); // 방향탐지 루프 종료
 
     return imageDataURL;
 }
@@ -479,8 +513,7 @@ function stopCamera() {
         video.srcObject = null;
         videoStream = null;
         statusText.textContent = "카메라 off";
-        // camera_off();
-        console.log("카메라 종료됨");
+        camera_off();
     }
 }
 
@@ -518,9 +551,7 @@ let isFitting = false;
 // 피팅 그리기
 function onResults(results) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    console.log('onResults내부');
     if (!(results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0)) return;
-    console.log('222');
     const landmarks = results.multiFaceLandmarks[0];
     const leftEye = landmarks[33];
     const rightEye = landmarks[263];
@@ -671,6 +702,7 @@ function cropTransparentImage(image, padding = 50) {
 
 
 // 피팅시작작
+let fittingLoopId = null;
 function set_glassesfit(glassesPath, templePath){
     const width = video.videoWidth;
     const height = video.videoHeight;
@@ -688,17 +720,17 @@ function set_glassesfit(glassesPath, templePath){
     isFitting = true;
 
     async function detect() {
-        if (!isFitting) return; // fitting이 끝났으면 루프 종료
         await faceMesh.send({ image: video });
-        requestAnimationFrame(detect);
+        if (isFitting) fittingLoopId = requestAnimationFrame(detect);
     }
 
     detect(); // 루프 시작
 }
 
-// 피팅종료
+// 피팅종료 
 function stop_glassesfit(){
     isFitting = false;
+    cancelAnimationFrame(fittingLoopId);
     faceMesh.onResults(() => {});
     ctx.clearRect(0, 0, canvas.width, canvas.height); // 초기화
 }
@@ -724,13 +756,12 @@ $('#startCam').on('click', function(){
 // 캠 끄기 클릭
 $('#stopCam').on('click', function(){
     stopCamera();
+    stop_glassesfit();
 });
 
 
 // 사진촬영 클릭
 $('#screenShot').on('click', function(){
-    // console.log('눌러지냐?');
-    // rotationFace();
     // captureFace();
     if (!isCounting) {
         rotationFace();
@@ -786,11 +817,19 @@ $('#addFile').on('click', function(){
 
 // 안경피팅
 $('#gleassesFit').on('click', function(){
-    let glassesPath = '../static/img/boston_wt.png';
-    let templePath = '../static/img/temple_wt.png';
-    console.log('누름');
+    let glassesPath = '../static/img/pantos_blk.png';
+    let templePath = '../static/img/temple_blk.png';
     set_glassesfit(glassesPath,templePath);
 });
 $('#StopGleassesFit').on('click', function(){
     stop_glassesfit();
 });
+
+// 안경리스트 요청청 
+$('#getGlassesList').on('click', function(){
+    let glass_lists = getGlassesList();
+    console.log('glass_lists');
+    console.log(glass_lists);
+    $("#camera_under").show();
+    $("#camera_btn").hide();
+})
