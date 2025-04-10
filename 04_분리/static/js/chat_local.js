@@ -55,6 +55,10 @@ function summit_chat(){
                     chat_history.push({"role": "assistant", "content": save_text})
                 }else if(result_type == 'getList'){
                     $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
+                    console.log('response.data:');
+                    console.log(response.data);
+                    $("#camera_under").show();
+                    $("#camera_btn").hide();
                     glasses_list_views(response.data);
                     chat_history.push({"role": "assistant", "content": response.text_message})
                 }else {
@@ -84,6 +88,7 @@ function getGlassesList(){
             color_type: color_id
          }),
         success: function(response){
+            console.log(response.text_message);
             glasses_list_views(response);
         },
         error: function (xhr, status, error) {
@@ -91,3 +96,50 @@ function getGlassesList(){
         }
     });
 }
+
+function face_scan(){
+    // 캔버스 이미지 
+    let imageDataURL = canvas.toDataURL("image/png");
+    // Data URL → Blob 변환
+    function dataURLtoBlob(dataurl) {
+        let arr = dataurl.split(',');
+        let mime = arr[0].match(/:(.*?);/)[1];
+        let bstr = atob(arr[1]);
+        let n = bstr.length;
+        let u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
+    let imageBlob = dataURLtoBlob(imageDataURL);
+
+    // from 데이터로
+    let formData = new FormData();
+    formData.append("file", imageBlob, "face_image.png");
+
+    $.ajax({
+        url:'/facefit_model/scan',
+        type:'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            console.log("response:", response);
+            // 예: 결과 출력
+            $('#chat_talks').append(`<div class="ai_talk"><div>당신의 얼굴형은 <b>${response.data}</b>입니다!</div></div>`);
+        },
+        error: function (xhr, status, error) {
+            console.error("분석 실패:", error);
+        }
+
+    })
+
+}
+
+
+
+// 분석석
+$('#faceScan').on('click', function(){
+    face_scan();
+});

@@ -254,8 +254,7 @@ function list_and_btn(){
 
 // 안경 리스트 나열 
 function glasses_list_views(list){ //이후 데이터 모양보고 작성하기....
-    console.log('glasses_list_views실행행');
-    console.log(list);
+    
     $('#glass_lists').val();
     let gl_types = [];
     list.forEach(function(glasses, idx) {
@@ -307,7 +306,9 @@ $(document).on("click", ".glass_img", function () {
     let glassesPath = '../static/img/'+glass.glasses_img+'.png';
     console.log(glassesPath);
     let templePath = '../static/img/'+glass.glasses_temple_img+'.png';
-    set_glassesfit(glassesPath,templePath);
+    setTimeout(function () {
+        set_glassesfit(glassesPath, templePath);
+    }, 500);
 });
 
 
@@ -585,7 +586,7 @@ function onResults(results) {
     const halfSrcW = glassesImg.width / 2;
     const halfDstW = glassesWidth / 2;
     const height = glassesHeight;
-    const downY = 8;
+    const downY = 5;
 
     // 왼쪽
     ctx.drawImage(

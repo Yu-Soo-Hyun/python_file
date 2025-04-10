@@ -107,9 +107,10 @@ def get_glasses_by_shape(face_shape: str, color=None):
                 params.append(f"%{color}%")
 
             cursor.execute(base_query, params)
-            results = cursor.fetchall()
-            return results
-            return {"result_type": result_type, 'text_message': results}
+            result_data = cursor.fetchall()
+            text_message = '리스트에서 가상 시착을 원하는 안경을 골라주세요요'
+            # return results
+            return {"result_type": result_type, 'text_message': text_message, 'data': result_data}
 
     finally:
         connection.close()
@@ -150,7 +151,7 @@ llm = ChatOpenAI(model='gpt-3.5-turbo')
 prompt = ChatPromptTemplate.from_messages([
     SystemMessage(content= "너는 얼굴형에 따른 안경을 추천하는 전문가 챗봇이야. "
                 "사용자가 특정 얼굴형(oval, square, round, heart, oblong) 또는 색상(black, white)을 언급하면, "
-                "'get_glasses_by_shape' 툴을 사용해서 안경 리스트를 반환하되 결과 값은 data로 가져가기때문에 너는 리스트를 확인하라고 안내 멘트를 해줘. "
+                "'get_glasses_by_shape' 툴을 사용하면 리스트의 안경이 사용자의 화면에 나타나므로 클릭하면 가상시착이 가능하다고 안내해줘. "
                 "사용자가 얼굴형에 대해 물어보면 'face_shape_info'를, "
                 "사진을 찍거나 카메라를 켜달라고 하면 해당 기능을 수행해. "
                 "이 외의 주제는 주의를 줘야 해."),
@@ -202,7 +203,7 @@ def talks():
         result = {
             "result_type": tool_result.get("result_type", "message"),
             "text_message": results["output"],
-            "data": tool_result.get("text_message", results["output"]),
+            "data": tool_result.get("data"),
         }
 
     else:
