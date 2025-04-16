@@ -1,3 +1,5 @@
+
+setupCamera();
 // 메뉴바
 const siteNav = document.querySelector('.js-site-nav')
 const menu = document.querySelector('.js-menu')
@@ -158,7 +160,7 @@ function drawing_canvas(url){
         canvas.height = canvasHeight;
 
         canvas.style.transform = "none";
-        canvas.style.objectFit = "contain";
+        // canvas.style.objectFit = "contain";
 
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -201,7 +203,7 @@ $(document).on("change", "#file_input", function (event) {
             // const canvas = document.getElementById("outputCanvas");
             const ctx = canvas.getContext("2d");
             // canvas.style.transform = "none";
-            canvas.style.objectFit = "contain";
+            // canvas.style.objectFit = "contain";
 
             canvas.width = img.width;
             canvas.height = img.height;
@@ -254,10 +256,11 @@ function list_and_btn(){
 
 // 안경 리스트 나열 
 function glasses_list_views(list){ //이후 데이터 모양보고 작성하기....
-    
+    console.log(list);
+    let glasses_list = list.data;
     $('#glass_lists').val();
     let gl_types = [];
-    list.forEach(function(glasses, idx) {
+    glasses_list.forEach(function(glasses, idx) {
         let glasses_idx = glasses.glasses_idx
         let glasses_type = glasses.glasses_type
         let glasses_img = glasses.glasses_img
@@ -340,7 +343,8 @@ faceMesh.setOptions({
 async function setupCamera() {
     try{
 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true});
+        // const stream = await navigator.mediaDevices.getUserMedia({ video: true});
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }}); // 변경
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";

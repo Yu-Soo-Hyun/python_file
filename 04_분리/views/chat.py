@@ -69,10 +69,11 @@ def camera_stop(input=None):
 def face_shape_info(input=None):
     result_type = 'facefit'
     # DB가져오ㅘ서 face_shapes 가져옴
-    text_message = face_shapes
+    text_message = '다음과 같은 얼굴형 타입이 있습니다다'
+    result_data = face_shapes
     print('face_shape_info 실행 *****')
 
-    return {"result_type": result_type, 'text_message': text_message}
+    return {"result_type": result_type, 'text_message': text_message, 'data': result_data}
 
 # 안경검색
 def get_glasses_by_shape(face_shape: str, color=None):
@@ -100,15 +101,16 @@ def get_glasses_by_shape(face_shape: str, color=None):
             # 기본
             base_query = "SELECT * FROM glasses WHERE face_shape LIKE %s"
             params = [f"%{face_shape}%"]
-
+            
             # 색상조건있을시시
             if color:
                 base_query += " AND glasses_color LIKE %s"
                 params.append(f"%{color}%")
-
+            print(base_query)
             cursor.execute(base_query, params)
             result_data = cursor.fetchall()
             text_message = '리스트에서 가상 시착을 원하는 안경을 골라주세요요'
+            print(result_data)
             # return results
             return {"result_type": result_type, 'text_message': text_message, 'data': result_data}
 
