@@ -258,7 +258,7 @@ function list_and_btn(){
 function glasses_list_views(list){ //이후 데이터 모양보고 작성하기....
     console.log(list);
     let glasses_list = list.data;
-    $('#glass_lists').val();
+    $('#glass_lists').empty();
     let gl_types = [];
     glasses_list.forEach(function(glasses, idx) {
         let glasses_idx = glasses.glasses_idx
