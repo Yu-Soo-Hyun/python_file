@@ -57,6 +57,12 @@ def capture_start(input=None):
     print('capture_start 실행 *****')
     return {"result_type": result_type, 'text_message': text_message}
 
+def addfile_start(input=None):
+    result_type = 'addfile'
+    text_message = '얼굴형 분석을 위한 한개의 사진파일을 넣어주세요' 
+    print('addfile_start 실행 *****')
+    return {"result_type": result_type, 'text_message': text_message}
+
 
 def camera_stop(input=None):
     result_type = 'stop'
@@ -77,15 +83,7 @@ def face_shape_info(input=None):
 
 # 안경검색
 def get_glasses_by_shape(face_shape: str, color=None):
-    # allowed_shapes = ['oval', 'square', 'round', 'heart', 'oblong','']
-    # allowed_colors = ['black', 'white']
 
-    # if face_shape.lower() not in allowed_shapes:
-    #     return {"result_type": "message", "text_message": f"지원하지 않는 얼굴형입니다: {face_shape}"}
-
-    # if color and color.lower() not in allowed_colors:
-    #     color = None  # 무시 
-        
     connection = pymysql.connect(
         host='127.0.0.1',   
         user='facefit',
@@ -99,10 +97,12 @@ def get_glasses_by_shape(face_shape: str, color=None):
         with connection.cursor() as cursor:
             result_type = 'getList'
             # 기본
-            base_query = "SELECT * FROM glasses WHERE face_shape LIKE %s"
+            base_query = "SELECT glasses.glasses_idx, glasses.glasses_name, glasses.glasses_color, " \
+            "glasses.glasses_type, glasses.glasses_img, glasses.glasses_temple_img  " \
+            "FROM glasses WHERE face_shape LIKE %s"
             params = [f"%{face_shape}%"]
             
-            # 색상조건있을시시
+            # 색상조건있을시
             if color:
                 base_query += " AND glasses_color LIKE %s"
                 params.append(f"%{color}%")
@@ -119,21 +119,26 @@ def get_glasses_by_shape(face_shape: str, color=None):
 
 # tool 등록 
 tools = [
-    Tool(
-        name="camera_on",
-        func=camera_on,
-        description="카메라 사용을 시작함"
-    ),
+    # Tool(
+    #     name="camera_on",
+    #     func=camera_on,
+    #     description="카메라 사용을 시작함"
+    # ),
     Tool(
         name="capture_start",
         func=capture_start,
-        description="카운트다운후 사진을 찍음"
+        description="사용자가 사진 촬영을 원하는경우 카운트다운후 사진을 찍어 파일전송및 얼굴분석 단계를 진행함"
     ),
     Tool(
-        name="camera_stop",
-        func=camera_stop,
-        description="카메라 사용을 중단함"
+        name="addfile_start",
+        func=addfile_start,
+        description="사용자가 갖고있는 이미지를 첨부하길 원하는경우 화면에서 파일첨부과정을 시작함"
     ),
+    # Tool(
+    #     name="camera_stop",
+    #     func=camera_stop,
+    #     description="카메라 사용을 중단함"
+    # ),
     Tool(
         name="face_shape_info",
         func=face_shape_info,
@@ -143,7 +148,7 @@ tools = [
         name="get_glasses_by_shape",
         func=get_glasses_by_shape,
         description="Get a list of glasses based on face shape and optional color. \
-                    Arguments:\nface_shape: one of ['oval', 'square', 'round', 'heart', 'oblong']\ncolor: optional string like 'black' or 'white'"
+                    Arguments:\nface_shape: one of ['oval', 'square', 'round', 'heart', 'oblong']"
     ),
 ]
 
@@ -151,11 +156,13 @@ tools = [
 
 llm = ChatOpenAI(model='gpt-3.5-turbo')
 prompt = ChatPromptTemplate.from_messages([
-    SystemMessage(content= "너는 얼굴형에 따른 안경을 추천하는 전문가 챗봇이야. "
-                "사용자가 특정 얼굴형(oval, square, round, heart, oblong) 또는 색상(black, white)을 언급하면, "
-                "'get_glasses_by_shape' 툴을 사용하면 리스트의 안경이 사용자의 화면에 나타나므로 클릭하면 가상시착이 가능하다고 안내해줘. "
-                "사용자가 얼굴형에 대해 물어보면 'face_shape_info'를, "
-                "사진을 찍거나 카메라를 켜달라고 하면 해당 기능을 수행해. "
+    SystemMessage(content= "당신은 얼굴형에 따른 안경을 추천하는 전문가 챗봇입니다. "
+                "얼굴형을 분석후 안경을 추천받거나 사용자가 본인의 얼굴형을 직접 말하면 그에따라 안경을 추천하세요."
+                "얼굴형의 종류는 계란형-oval, 각진형-square, 둥근형-round, 역삼각형-heart, 길다란형-oblong 가 있습니다."
+                "사용자가 얼굴형 종류에 대해 물어보면 'face_shape_info' 를 실행해 안내해주세요. "
+                "직접적인 얼굴형 분석을 원하면 사진을 촬영할건지 갖고있는 이미지 파일을 첨부할건지 물어본후에 'capture_start' 또는 'addfile_start'를 사용해 분석을 시작하세요."
+                "'get_glasses_by_shape' 툴을 사용하면 화면의 안경이미지를 클릭해 가상시착이 가능하다고 안내하세요요. "
+                "모든 대화는 공손한 존댓말로 답변해주세요요"
                 "이 외의 주제는 주의를 줘야 해."),
     MessagesPlaceholder(variable_name="chat_history"),
     MessagesPlaceholder(variable_name="input"),

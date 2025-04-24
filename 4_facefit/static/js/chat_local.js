@@ -22,10 +22,9 @@ function summit_chat(){
                 chat_history.push({"role": "user", "content": message})
                 console.log(response);
                 let result_type = response.result_type;
-                if (result_type == 'camera'){
+                if (result_type == 'addfile'){
                     $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
-                    clearCanvas();
-                    setupCamera();
+                    addFile();
                     chat_history.push({"role": "assistant", "content": response.text_message})
                 } else if(result_type == 'cheese'){
                     $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
@@ -40,6 +39,7 @@ function summit_chat(){
                 }else if(result_type == 'facefit'){
                     let fit_chat ='';
                     let save_text ='';
+                    // $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
                     response.data.forEach(function(shape, idx) {
                         console.log(shape);
                         fit_chat += `
@@ -57,15 +57,17 @@ function summit_chat(){
                     $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
                     console.log('response.data:');
                     console.log(response.data);
-                    $("#camera_under").show();
-                    $("#camera_btn").hide();
+                    $("#glasses").show();
+                    // $("#glasses").hide();
                     glasses_list_views(response.data);
                     chat_history.push({"role": "assistant", "content": response.text_message})
                 }else {
                     $('#chat_talks').append(`<div class="ai_talk"><div>${response.text_message}</div></div>`);
                     chat_history.push({"role": "assistant", "content": response.text_message})
                 }
-                scrolling_chat();
+                setTimeout(function () {
+                    scrolling_chat();
+                }, 1000);
             },
             error: function (xhr, status, error) {
                 loading_fin();
@@ -128,6 +130,12 @@ function face_scan(){
             console.log("response:", response);
             // 예: 결과 출력
             $('#chat_talks').append(`<div class="ai_talk"><div>당신의 얼굴형은 <b>${response.data}</b>입니다!</div></div>`);
+            chat_history.push({"role": "assistant", "content": `당신의 얼굴형은 <b>${response.data}</b>입니다!`});
+            
+            setTimeout(function () {
+                loading_fin();
+                scrolling_chat();
+            }, 1000);
         },
         error: function (xhr, status, error) {
             console.error("분석 실패:", error);

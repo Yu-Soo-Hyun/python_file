@@ -137,7 +137,7 @@ function loading(){
 }
 function loading_fin() {
     $('.loading_text').remove();
-    $('#text_input').prop('disabled', false);
+    $('#text_input').prop('disabled', false).focus();
 }
 
 
@@ -230,6 +230,7 @@ function addFile(){
         <img id="add_photo" src="../static/img/addfile.png" style="width: 150px; object-fit: contain; border-radius: 10px; cursor:pointer" />
         </div></div>`);
     scrolling_chat();
+    loading();
 }
 function addFilefin(){
 
@@ -240,27 +241,28 @@ function addFilefin(){
     `);
 
     $(".ai_talk_img").removeClass("ai_talk_img");
-    scrolling_chat();
+    setTimeout(function () {
+        face_scan();
+        loading_fin();
+        scrolling_chat();
+    }, 1000);
 }
 
 // 캡쳐버튼 <-> 안경리스트 전환 동작작
 function list_and_btn(){
-    if ($("#camera_under").is(":visible")) {
-        $("#camera_under").hide();
-        $("#camera_btn").show();
+    if ($("#glasses").is(":visible")) {
+        $("#glasses").hide();
       } else {
-        $("#camera_under").show();
-        $("#camera_btn").hide();
+        $("#glasses").show();
       }
 }
 
 // 안경 리스트 나열 
 function glasses_list_views(list){ //이후 데이터 모양보고 작성하기....
     console.log(list);
-    let glasses_list = list.data;
     $('#glass_lists').empty();
     let gl_types = [];
-    glasses_list.forEach(function(glasses, idx) {
+    list.forEach(function(glasses, idx) {
         let glasses_idx = glasses.glasses_idx
         let glasses_type = glasses.glasses_type
         let glasses_img = glasses.glasses_img
@@ -507,8 +509,13 @@ function captureFace() {
     let imageDataURL = captureCanvas.toDataURL("image/png");
     stopCamera(); //반복 x
     cancelAnimationFrame(rotationLoopId); // 방향탐지 루프 종료
-
-    return imageDataURL;
+    
+    setTimeout(function () {
+        face_scan();
+        loading();
+        scrolling_chat();
+    }, 1000);
+    // return imageDataURL;
 }
 
 // 카메라 종료
@@ -835,6 +842,5 @@ $('#getGlassesList').on('click', function(){
     let glass_lists = getGlassesList();
     console.log('glass_lists');
     console.log(glass_lists);
-    $("#camera_under").show();
-    $("#camera_btn").hide();
+    $("#glasses").show();
 })
