@@ -131,10 +131,12 @@ function face_scan(){
             // 예: 결과 출력
             $('#chat_talks').append(`<div class="ai_talk"><div>당신의 얼굴형은 <b>${response.data}</b>입니다!</div></div>`);
             chat_history.push({"role": "assistant", "content": `당신의 얼굴형은 <b>${response.data}</b>입니다!`});
-            
+
             setTimeout(function () {
                 loading_fin();
                 scrolling_chat();
+                clearCanvas();
+                setupCamera();
             }, 1000);
         },
         error: function (xhr, status, error) {

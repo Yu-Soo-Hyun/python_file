@@ -235,14 +235,14 @@ body {
 
 
 
-/* 임시 */
+/* 임시 테스트용 */
 .btn-container{
     z-index: 10;
     position: absolute;
     top: 40px;
     left: 150px;
     width: 100%;
-    /* display: none; */
+    display: none;
 }
 
 

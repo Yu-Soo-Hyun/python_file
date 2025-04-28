@@ -350,7 +350,7 @@ async function setupCamera() {
         videoStream = stream;
         video.srcObject = stream;
         statusText.textContent = "카메라 on";
-        camera_on();
+        // camera_on();
         return new Promise(resolve => video.onloadedmetadata = resolve);
     } catch (error) {
         console.error("웹캠 접근 실패:", error);
@@ -514,7 +514,7 @@ function captureFace() {
         face_scan();
         loading();
         scrolling_chat();
-    }, 1000);
+    }, 500);
     // return imageDataURL;
 }
 
@@ -525,7 +525,7 @@ function stopCamera() {
         video.srcObject = null;
         videoStream = null;
         statusText.textContent = "카메라 off";
-        camera_off();
+        // camera_off();
     }
 }
 
